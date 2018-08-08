@@ -8,15 +8,22 @@ $(function() {
   });
 });
 
-//Registration
+//Registration (create and save default settings)
 $(document).on('click', '#btnRegister', function(e) {
   var pass = $("#password").val();
   if (pass != null && pass != "") {
     var user = {
-      password: pass
+      password:pass
+    };
+    var userSettings = {
+      timer: 30,
+      protection: false,
+      keyboardTracking: false,
+      mouseTracking: false
     };
     chrome.storage.sync.set({
-      'user': user
+      'userSettings': userSettings,
+      'user':user
     });
     $('.container').load('../html/popup_login.html');
   } else {
@@ -30,7 +37,18 @@ $(document).on('click', '#btnLogin', function(e) {
   chrome.storage.sync.get('user', function(data) {
     var enteredPassword = $("#password").val();
     if (data.user.password == enteredPassword) {
-      $('.container').load('../html/popup_control_panel.html');
+      $('.container').load('../html/popup_settings_panel.html', function(){
+        chrome.storage.sync.get('userSettings', function(data){
+          var protection = data.userSettings.protection;
+          var mouseTrack = data.userSettings.mouseTracking;
+          var keyboardTrack = data.userSettings.keyboardTracking;
+          var seconds = data.userSettings.timer;
+          $("#protectionStatus").prop('checked', protection);
+          $("#trackingMouse").prop('checked', mouseTrack);
+          $("#trackingKeyboard").prop('checked', keyboardTrack);
+          $("#timer").val(seconds);
+        });
+      });
     } else {
       $status = "<div class='alert alert-danger text-center'><strong>Incorrect password</strong></div>";
       $("#statusText").append($status);
@@ -38,7 +56,9 @@ $(document).on('click', '#btnLogin', function(e) {
   });
 });
 
-//Change password
+
+
+//Change password Save
 $(document).on('click', "#btnSaveNewPassword", function(e) {
   $("#statusText").empty();
   var oldPassword = $("#oldPassword").val();
@@ -67,6 +87,24 @@ $(document).on('click', "#btnSaveNewPassword", function(e) {
   });
 });
 
+//Save channges of settings
+$(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, #timer", function(e){
+  var protection = $('#protectionStatus').is(":checked");
+  var mouseTrack = $('#trackingMouse').is(":checked");
+  var keyboardTrack = $('#trackingKeyboard').is(":checked");
+  var seconds = $("#timer").val();
+
+  var userSettings = {
+    protection: protection,
+    keyboardTracking: keyboardTrack,
+    mouseTracking: mouseTrack,
+    timer: seconds
+  };
+  chrome.storage.sync.set({
+    'userSettings': userSettings
+  });
+});
+
 //Navigate to change password view
 $(document).on('click', '#btnChangePasswordView', function(e) {
   $('.container').load("../html/popup_change_password.html");
@@ -75,5 +113,16 @@ $(document).on('click', '#btnChangePasswordView', function(e) {
 //Navigate to control panel view
 $(document).on('click', '#changePasswordBackLink', function(e) {
   e.preventDefault();
-  $(".container").load("../html/popup_control_panel.html");
+  $('.container').load('../html/popup_settings_panel.html', function(){
+    chrome.storage.sync.get('userSettings', function(data){
+      var protection = data.userSettings.protection;
+      var mouseTrack = data.userSettings.mouseTracking;
+      var keyboardTrack = data.userSettings.keyboardTracking;
+      var seconds = data.userSettings.timer;
+      $("#protectionStatus").prop('checked', protection);
+      $("#trackingMouse").prop('checked', mouseTrack);
+      $("#trackingKeyboard").prop('checked', keyboardTrack);
+      $("#timer").val(seconds);
+    });
+  });
 });
