@@ -23,7 +23,7 @@ function lockTab() {
   $('body').remove();
   $('meta').remove();
   //Update elements
-    //Change favicon of tab
+  //Change favicon of tab
   src = chrome.extension.getURL("../icons/lock.ico");
   $('link[rel*="icon"]').attr('href', src);
   //Add elements
@@ -37,13 +37,13 @@ function lockTab() {
   //window.history.replaceState(null, "", "Restircted");
 
   $("#btnSubmitPassword").click(function(e) {
+    e.preventDefault();
     password = $("#passwordValue").val();
     chrome.storage.sync.get('user', function(data) {
       if (data.user.password == password) {
         sendMessageToBackgroundScriptToUnlockTabs();
       } else {
         //Stay locked
-        e.preventDefault();
       }
     });
   });

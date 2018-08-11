@@ -57,10 +57,10 @@ chrome.runtime.onMessage.addListener(
         deleteTimer();
       }
     } else if (request.action === "UnlockTabs") {
-
       chrome.storage.sync.set({
         'browserLocked': false
       });
+      refreshTabs();
       chrome.storage.sync.get("userSettings", function(data) {
         if (data.userSettings.protection) {
           createTimer();
