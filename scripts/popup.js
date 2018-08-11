@@ -13,7 +13,7 @@ $(document).on('click', '#btnRegister', function(e) {
   var pass = $("#password").val();
   if (pass != null && pass != "") {
     var user = {
-      password:pass
+      password: pass
     };
     var userSettings = {
       timer: 30,
@@ -23,7 +23,7 @@ $(document).on('click', '#btnRegister', function(e) {
     };
     chrome.storage.sync.set({
       'userSettings': userSettings,
-      'user':user
+      'user': user
     });
     $('.container').load('../html/popup_login.html');
   } else {
@@ -37,8 +37,8 @@ $(document).on('click', '#btnLogin', function(e) {
   chrome.storage.sync.get('user', function(data) {
     var enteredPassword = $("#password").val();
     if (data.user.password == enteredPassword) {
-      $('.container').load('../html/popup_settings_panel.html', function(){
-        chrome.storage.sync.get('userSettings', function(data){
+      $('.container').load('../html/popup_settings_panel.html', function() {
+        chrome.storage.sync.get('userSettings', function(data) {
           var protection = data.userSettings.protection;
           var mouseTrack = data.userSettings.mouseTracking;
           var keyboardTrack = data.userSettings.keyboardTracking;
@@ -87,8 +87,8 @@ $(document).on('click', "#btnSaveNewPassword", function(e) {
   });
 });
 
-//Save channges of settings
-$(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, #timer", function(e){
+//Update settings
+$(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, #timer", function(e) {
   var protection = $('#protectionStatus').is(":checked");
   var mouseTrack = $('#trackingMouse').is(":checked");
   var keyboardTrack = $('#trackingKeyboard').is(":checked");
@@ -103,6 +103,16 @@ $(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, 
   chrome.storage.sync.set({
     'userSettings': userSettings
   });
+  //Send updated settings to background script
+  chrome.runtime.sendMessage({
+    action: "UpdateUserSettings",
+    data: {
+      protection: protection,
+      keyboardTracking: keyboardTrack,
+      mouseTracking: mouseTrack,
+      timer: seconds
+    }
+  });
 });
 
 //Navigate to change password view
@@ -113,8 +123,8 @@ $(document).on('click', '#btnChangePasswordView', function(e) {
 //Navigate to control panel view
 $(document).on('click', '#changePasswordBackLink', function(e) {
   e.preventDefault();
-  $('.container').load('../html/popup_settings_panel.html', function(){
-    chrome.storage.sync.get('userSettings', function(data){
+  $('.container').load('../html/popup_settings_panel.html', function() {
+    chrome.storage.sync.get('userSettings', function(data) {
       var protection = data.userSettings.protection;
       var mouseTrack = data.userSettings.mouseTracking;
       var keyboardTrack = data.userSettings.keyboardTracking;

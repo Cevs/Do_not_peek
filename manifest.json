@@ -1,7 +1,7 @@
 {
   "name": "DoNotPeek",
   "version": "1.0.0",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "icons": {
     "16": "icons/hide_16.png",
     "48": "icons/hide_48.png",
@@ -12,6 +12,19 @@
     "default_popup": "html/popup.html"
   },
   "permissions": [
-    "storage"
-  ]
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
+  "background": {
+    "scripts": ["scripts/background.js"],
+    "persistent": true
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>", "https://*/*", "http://*/*"],
+    "css": ["styles/myStyles.css"],
+    "js": ["scripts/jquery.min.js", "scripts/contentScript.js"],
+    "run_at": "document_start"
+  }],
+  "web_accessible_resources": ["scripts/jquery.min.js", "scripts/contentScript.js","styles/myStyles.css", "icons/lock.ico"]
 }
