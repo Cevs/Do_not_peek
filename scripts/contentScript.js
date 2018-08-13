@@ -1,5 +1,3 @@
-//var detachedBody;
-//var detachedHead;
 $(function() {
   chrome.storage.sync.get("browserLocked", function(data) {
     if (data.browserLocked) {
@@ -20,6 +18,7 @@ function lockTab() {
   //Remove elements
   $("link:not([rel*='icon'])").remove();
   $('script').remove();
+  $('style').remove();
   $('body').remove();
   $('meta').remove();
   //Update elements
@@ -32,6 +31,13 @@ function lockTab() {
   $("html").append("<div class='form-container'><form class='form'><h2>Enter password</h2><div class='row'>" +
     "<input id='passwordValue' type='password' placeholder='password'/></br></div><div class='row'>" +
     "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px;'></div> </form></div>");
+  chrome.storage.local.get("background", function(data) {
+    if (data.background.image != "") {
+      $(".form-container").css('background-image', 'url(' + data.background.image  + ')');
+      $(".form-container").css('background-size', data.background.size);
+    }
+  });
+
 
   //Chnage url without creating new enter in histroy of browser
   //window.history.replaceState(null, "", "Restircted");

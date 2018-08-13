@@ -114,13 +114,32 @@ $(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, 
     }
   });
 });
+//Navigate to set bacground view
+$(document).on('click', "#btnSetBackground", function(e) {
+  $('.container').load("../html/popup_set_background.html", function() {
+    chrome.storage.local.get('background', function(data) {
+      if (data.background.image != "" && typeof data.background.image !== 'undefined') {
+        if(data.background.size == "cover"){
+          $("#radioFullSize").prop("checked",true);
+        }else if(data.background.size == "auto"){
+          $("#radioAutoSize").prop("checked",true);
+        }
+        $('.image-upload-wrap').hide();
+        $('.file-upload-image').attr('src', data.background.image);
+        $('.file-upload-content').show();
+      } else {
+        removeUpload();
+      }
+    });
+  });
+});
 
 //Navigate to change password view
 $(document).on('click', '#btnChangePasswordView', function(e) {
   $('.container').load("../html/popup_change_password.html");
 });
 
-//Navigate to control panel view
+//Navigate to  user settings view from change password view
 $(document).on('click', '#changePasswordBackLink', function(e) {
   e.preventDefault();
   $('.container').load('../html/popup_settings_panel.html', function() {
@@ -136,3 +155,95 @@ $(document).on('click', '#changePasswordBackLink', function(e) {
     });
   });
 });
+
+//Navigate to user settings view from set background btnChangePasswordView
+$(document).on('click', '#setBackgroundBackLink', function(e) {
+  e.preventDefault();
+  $('.container').load('../html/popup_settings_panel.html', function() {
+    chrome.storage.sync.get('userSettings', function(data) {
+      var protection = data.userSettings.protection;
+      var mouseTrack = data.userSettings.mouseTracking;
+      var keyboardTrack = data.userSettings.keyboardTracking;
+      var seconds = data.userSettings.timer;
+      $("#protectionStatus").prop('checked', protection);
+      $("#trackingMouse").prop('checked', mouseTrack);
+      $("#trackingKeyboard").prop('checked', keyboardTrack);
+      $("#timer").val(seconds);
+    });
+  });
+});
+
+$(document).on('change', '#uploadImage', function() {
+  var input = ($("#uploadImage"))[0];
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      $('.image-upload-wrap').hide();
+
+      $('.file-upload-image').attr('src', e.target.result);
+      $('.file-upload-content').show();
+
+      $('.image-title').html(input.files[0].name);
+    };
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    removeUpload();
+  }
+});
+
+$(document).on('click', "#btnRemoveUploadedImage", function() {
+  removeUpload();
+});
+
+$(document).on('click', "#btnSaveImage", function() {
+  var input = ($("#uploadImage"))[0];
+  var imageSize = $("input[name=optradio]:checked").val()
+
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var backgroundObject = {
+        image: e.target.result,
+        size: imageSize
+      };
+      chrome.storage.local.set({
+        "background": backgroundObject
+      });
+    };
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    chrome.storage.local.get("background", function(data) {
+      if (data.background.image != "") {
+        var backgroundObject = {
+          image: data.background.image,
+          size: imageSize
+        };
+        chrome.storage.local.set({
+          "background": backgroundObject
+        });
+      } else {
+        removeUpload();
+      }
+    });
+
+  }
+});
+
+function removeUpload() {
+  $('.file-upload-input').replaceWith($('.file-upload-input').clone());
+  $('.file-upload-content').hide();
+  $('.image-upload-wrap').show();
+  $('.image-upload-wrap').bind('dragover', function() {
+    $('.image-upload-wrap').addClass('image-dropping');
+  });
+  $('.image-upload-wrap').bind('dragleave', function() {
+    $('.image-upload-wrap').removeClass('image-dropping');
+  });
+  var backgroundObject = {
+    image: "",
+    size: "cover"
+  };
+  chrome.storage.local.set({
+    "background": backgroundObject
+  });
+}

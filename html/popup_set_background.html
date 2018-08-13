@@ -1,0 +1,24 @@
+<div class="row h-100">
+  <div class="col-sm-12 my-auto">
+    <h2 class="text-center"><a id="setBackgroundBackLink" href="" style="text-decoration:none; margin-right:7px;"><</a>Set background image</h2>
+    <div class="file-upload">
+      <div class="image-upload-wrap">
+        <input id='uploadImage' class="file-upload-input" type='file' accept="image/*" />
+        <div class="drag-text">
+          <h3>Drag and drop a file or select add Image</h3>
+        </div>
+      </div>
+      <div class="file-upload-content">
+        <img class="file-upload-image" src="#" alt="your image" />
+        <div class="image-title-wrap">
+          <button id='btnRemoveUploadedImage' type="button" class="remove-image">Remove <span class="image-title"> Image</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="row radio-group">
+      <label class="radio-inline mx-auto"><input id="radioFullSize" type="radio" name="optradio" checked value="cover">Cover (Full screen)</label>
+      <label class="radio-inline  mx-auto"><input id="radioAutoSize" type="radio" name="optradio" value="auto">Auto (Pattern)</label>
+    </div>
+    <button id='btnSaveImage' class="file-upload-btn" type="button">Save Image</button>
+  </div>
+</div>
