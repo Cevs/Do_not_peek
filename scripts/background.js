@@ -66,6 +66,8 @@ chrome.runtime.onMessage.addListener(
           createTimer();
         }
       });
+    }else if(request.action === "RefreshTimer"){
+      createTimer();
     }
   }
 );

@@ -225,7 +225,6 @@ $(document).on('click', "#btnSaveImage", function() {
         removeUpload();
       }
     });
-
   }
 });
 

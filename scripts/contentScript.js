@@ -14,6 +14,15 @@ function sendMessageToBackgroundScriptToUnlockTabs() {
 }
 
 
+//Send notification to background script to refresh timer
+function sendMessageToBackgroundScriptToRefreshTimer() {
+  chrome.extension.sendMessage({
+    action: "RefreshTimer"
+  }, function(response) {});
+}
+
+
+
 function lockTab() {
   //Remove elements
   $("link:not([rel*='icon'])").remove();
@@ -54,3 +63,22 @@ function lockTab() {
     });
   });
 }
+
+
+//Register mouse move
+$("html").mousemove(function(event){
+  chrome.storage.sync.get("userSettings", function(data){
+    if(data.userSettings.mouseTracking){
+        sendMessageToBackgroundScriptToRefreshTimer();
+    }
+  });
+});
+
+//Register keyboard pressed
+$("html").keypress(function(event){
+  chrome.storage.sync.get("userSettings", function(data){
+    if(data.userSettings.keyboardTracking){
+        sendMessageToBackgroundScriptToRefreshTimer();
+    }
+  });
+});
