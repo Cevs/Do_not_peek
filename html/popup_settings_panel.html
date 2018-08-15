@@ -1,12 +1,12 @@
 <div class="row h-100">
   <div class="col-sm-12 my-auto">
     <h2 class="text-center">Options</h2>
+    <p class="text-center m-0 p-0">General settings</p>
     </br>
-
       <table class="options-table">
         <tr>
           <td align="center">
-            <span>Protection status: </span>
+            <span><strong>Protection status: <strong></span>
           </td>
           <td align="center">
             <label class="switch-toggle" for="protectionStatus" class="">
@@ -18,7 +18,7 @@
         </tr>
         <tr>
           <td align="center">
-            <span>Track mouse: </span>
+            <span><strong>Track mouse: </strong></span>
           </td>
           <td align="center">
             <label class="switch-toggle" for="trackingMouse" class="">
@@ -30,7 +30,7 @@
         </tr>
         <tr>
           <td align="center" width="50%">
-            <span>Track keyboard: </span>
+            <span><strong>Track keyboard: </strong></span>
           </td>
           <td align="center" width="50%">
             <label class="switch-toggle" for="trackingKeyboard" class="">
@@ -42,25 +42,28 @@
         </tr>
         <tr>
           <td align="center">
-            <span>Timer (seconds)</span>
+            <span><strong>Timer (seconds)</strong></span>
           </td>
           <td align="center">
             <input type="number" id="timer" style="width:40%;" value=0 class="text-right" />
           </td>
         </tr>
+      </table>
+      <br />
+      <table class="options-table">
         <tr>
           <td colspan="2" align="center">
-            <button id="btnChangePasswordView" class="btn btn-outline-secondary" style="width:40%" type="button">Change password</button>
+            <button id="btnChangePasswordView" class="btn btn-outline-dark" style="width:50%" type="button"><strong>Change password</strong></button>
           </td>
         </tr>
         <tr>
           <td colspan="2" align="center">
-            <button id="btnSetBackground" class="btn btn-outline-dark" style="width:40%" type="button">Set Background</button>
+            <button id="btnSetBackground" class="btn btn-outline-dark" style="width:50%" type="button"><strong>Set Background</strong></button>
           </td>
         </tr>
         <tr>
           <td colspan="2" align="center">
-            <button id="btnSetSiteSettings" class="btn btn-outline-dark" style="width:40%" type="button">Site rules</button>
+            <button id="btnSetSiteSettings" class="btn btn-outline-dark" style="width:50%" type="button"><strong>Sites Management</strong></button>
           </td>
         </tr>
       </table>

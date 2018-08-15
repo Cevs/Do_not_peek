@@ -6,6 +6,8 @@
 .popup-body {
   width: 400px;
   height: 500px;
+  background-color: #F8F8F8;
+  padding:10px;
 }
 
 .container {
@@ -217,7 +219,6 @@ table {
 }
 
 .file-upload {
-  background-color: #ffffff;
   margin: 0 auto;
   padding: 20px;
 }
@@ -225,7 +226,6 @@ table {
 .file-upload-btn {
   width: 100%;
   margin: 0;
-  margin-bottom:15px;
   margin-top:15px;
   color: #fff;
   background: #484D53;
@@ -268,7 +268,6 @@ table {
 }
 
 .image-upload-wrap {
-  margin-top: 20px;
   border: 3px dashed #343a40;
   position: relative;
 }
@@ -276,11 +275,6 @@ table {
 .image-dropping, .image-upload-wrap:hover {
   background: rgba(111, 182, 205, 0.4);
   border: 3px dashed #ffffff;
-}
-
-.image-title-wrap {
-  padding: 0 15px 15px 15px;
-  color: #222;
 }
 
 .drag-text {
@@ -296,9 +290,9 @@ table {
 
 .file-upload-image {
   max-height: 250px;
-  max-width: 350px;
+  max-width: 330px;
   margin: auto;
-  padding: 20px;
+  padding: 10px;
 }
 
 .remove-image {

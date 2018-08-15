@@ -150,7 +150,7 @@ $(document).on('click', '#setBackgroundBackLink', function(e) {
 });
 
 $(document).on('click', '#btnSetSiteSettings', function(e) {
-  $('.container').load("../html/popup_site_settings.html", function() {
+  $('.container').load("../html/popup_sites_management.html", function() {
     chrome.storage.local.get("sites", function(data) {
       var sitesArr = [];
       if (data.sites != "" && typeof data.sites !== 'undefined') {
@@ -190,6 +190,7 @@ $(document).on('click', "#btnRemoveUploadedImage", function() {
 });
 
 $(document).on('click', "#btnSaveImage", function() {
+  $("#statusText").empty();
   var input = ($("#uploadImage"))[0];
   var imageSize = $("input[name=optradio]:checked").val()
 
@@ -203,6 +204,8 @@ $(document).on('click', "#btnSaveImage", function() {
       chrome.storage.local.set({
         "background": backgroundObject
       });
+      $status = "<div class='alert alert-success text-center'><strong>Background saved</strong></div>";
+      $("#statusText").append($status);
     };
     reader.readAsDataURL(input.files[0]);
   } else {
@@ -258,13 +261,13 @@ $(document).on('click', "#btnRemoveSite", function(e) {
     if (data.sites != "" && typeof data.sites !== 'undefined') {
       sitesArr = data.sites;
     }
-    sitesArr.splice($.inArray(siteUrl, sitesArr),1);
+    sitesArr.splice($.inArray(siteUrl, sitesArr), 1);
     chrome.storage.local.set({
       "sites": sitesArr
     });
     $("#listOfSites").empty();
     $.each(sitesArr, function(index, v) {
-          $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
+      $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
     });
   });
 });
@@ -286,6 +289,7 @@ function removeUpload() {
   chrome.storage.local.set({
     "background": backgroundObject
   });
+  $("#statusText").empty();
 }
 
 //Load settings pannel
