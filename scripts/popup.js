@@ -119,10 +119,10 @@ $(document).on('click', "#btnSetBackground", function(e) {
   $('.container').load("../html/popup_set_background.html", function() {
     chrome.storage.local.get('background', function(data) {
       if (data.background.image != "" && typeof data.background.image !== 'undefined') {
-        if(data.background.size == "cover"){
-          $("#radioFullSize").prop("checked",true);
-        }else if(data.background.size == "auto"){
-          $("#radioAutoSize").prop("checked",true);
+        if (data.background.size == "cover") {
+          $("#radioFullSize").prop("checked", true);
+        } else if (data.background.size == "auto") {
+          $("#radioAutoSize").prop("checked", true);
         }
         $('.image-upload-wrap').hide();
         $('.file-upload-image').attr('src', data.background.image);
@@ -141,36 +141,30 @@ $(document).on('click', '#btnChangePasswordView', function(e) {
 
 //Navigate to  user settings view from change password view
 $(document).on('click', '#changePasswordBackLink', function(e) {
-  e.preventDefault();
-  $('.container').load('../html/popup_settings_panel.html', function() {
-    chrome.storage.sync.get('userSettings', function(data) {
-      var protection = data.userSettings.protection;
-      var mouseTrack = data.userSettings.mouseTracking;
-      var keyboardTrack = data.userSettings.keyboardTracking;
-      var seconds = data.userSettings.timer;
-      $("#protectionStatus").prop('checked', protection);
-      $("#trackingMouse").prop('checked', mouseTrack);
-      $("#trackingKeyboard").prop('checked', keyboardTrack);
-      $("#timer").val(seconds);
-    });
-  });
+  loadSettingsPanel(e);
 });
 
 //Navigate to user settings view from set background btnChangePasswordView
 $(document).on('click', '#setBackgroundBackLink', function(e) {
-  e.preventDefault();
-  $('.container').load('../html/popup_settings_panel.html', function() {
-    chrome.storage.sync.get('userSettings', function(data) {
-      var protection = data.userSettings.protection;
-      var mouseTrack = data.userSettings.mouseTracking;
-      var keyboardTrack = data.userSettings.keyboardTracking;
-      var seconds = data.userSettings.timer;
-      $("#protectionStatus").prop('checked', protection);
-      $("#trackingMouse").prop('checked', mouseTrack);
-      $("#trackingKeyboard").prop('checked', keyboardTrack);
-      $("#timer").val(seconds);
+  loadSettingsPanel(e);
+});
+
+$(document).on('click', '#btnSetSiteSettings', function(e) {
+  $('.container').load("../html/popup_site_settings.html", function() {
+    chrome.storage.local.get("sites", function(data) {
+      var sitesArr = [];
+      if (data.sites != "" && typeof data.sites !== 'undefined') {
+        sitesArr = data.sites;
+      }
+      $.each(sitesArr, function(index, v) {
+        $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
+      });
     });
   });
+});
+
+$(document).on('click', "#siteSettingsBackLink", function(e) {
+  loadSettingsPanel(e);
 });
 
 $(document).on('change', '#uploadImage', function() {
@@ -228,6 +222,53 @@ $(document).on('click', "#btnSaveImage", function() {
   }
 });
 
+//Add new site to list of sites that will not be locked
+$(document).on('click', "#btnAddSite", function(e) {
+  $("#statusText").empty();
+  newSiteUrl = $("#siteUrl").val();
+  if (newSiteUrl != "") {
+    chrome.storage.local.get("sites", function(data) {
+      var sitesArr = [];
+      if (data.sites != "" && typeof data.sites !== 'undefined') {
+        sitesArr = data.sites;
+      }
+      if (($.inArray(newSiteUrl, sitesArr)) == -1) {
+        sitesArr.push(newSiteUrl);
+        chrome.storage.local.set({
+          "sites": sitesArr
+        });
+        $("#listOfSites").empty();
+        $.each(sitesArr, function(index, v) {
+          $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
+        });
+      } else {
+        $status = "<div class='alert alert-warning text-center'><strong>URL of site already added</strong></div>";
+        $("#statusText").append($status);
+      }
+    });
+  }
+});
+
+//Remove site from list of sites
+$(document).on('click', "#btnRemoveSite", function(e) {
+  $("#statusText").empty();
+  siteUrl = $("#listOfSites option:selected").val();
+  chrome.storage.local.get("sites", function(data) {
+    var sitesArr = [];
+    if (data.sites != "" && typeof data.sites !== 'undefined') {
+      sitesArr = data.sites;
+    }
+    sitesArr.splice($.inArray(siteUrl, sitesArr),1);
+    chrome.storage.local.set({
+      "sites": sitesArr
+    });
+    $("#listOfSites").empty();
+    $.each(sitesArr, function(index, v) {
+          $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
+    });
+  });
+});
+
 function removeUpload() {
   $('.file-upload-input').replaceWith($('.file-upload-input').clone());
   $('.file-upload-content').hide();
@@ -244,5 +285,22 @@ function removeUpload() {
   };
   chrome.storage.local.set({
     "background": backgroundObject
+  });
+}
+
+//Load settings pannel
+function loadSettingsPanel(event) {
+  event.preventDefault();
+  $('.container').load('../html/popup_settings_panel.html', function() {
+    chrome.storage.sync.get('userSettings', function(data) {
+      var protection = data.userSettings.protection;
+      var mouseTrack = data.userSettings.mouseTracking;
+      var keyboardTrack = data.userSettings.keyboardTracking;
+      var seconds = data.userSettings.timer;
+      $("#protectionStatus").prop('checked', protection);
+      $("#trackingMouse").prop('checked', mouseTrack);
+      $("#trackingKeyboard").prop('checked', keyboardTrack);
+      $("#timer").val(seconds);
+    });
   });
 }

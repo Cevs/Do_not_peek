@@ -331,3 +331,8 @@ table {
  .radio-group{
    font-size: 20px;
  }
+
+ select {
+     overflow-y: auto;
+     resize: none;
+ }

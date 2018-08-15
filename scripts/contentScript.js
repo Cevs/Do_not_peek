@@ -1,7 +1,25 @@
 $(function() {
   chrome.storage.sync.get("browserLocked", function(data) {
     if (data.browserLocked) {
-      lockTab();
+      chrome.storage.local.get("sites", function(data) {
+        var sitesArr = [];
+        if (data.sites != "" && typeof data.sites !== 'undefined') {
+          sitesArr = data.sites;
+        }
+        url = window.location.href;
+        if ($.isEmptyObject(sitesArr)) {
+          lockTab();
+        } else {
+          $.each(sitesArr, function(index, value) {
+            if (url.indexOf(value) != -1) {
+              //Do not lock
+            } else {
+              //Lock tab
+              lockTab();
+            }
+          });
+        }
+      });
     }
   });
 });
@@ -25,6 +43,7 @@ function sendMessageToBackgroundScriptToRefreshTimer() {
 
 function lockTab() {
   //Remove elements
+  $('html').attr('style', '');
   $("link:not([rel*='icon'])").remove();
   $('script').remove();
   $('style').remove();
@@ -42,7 +61,7 @@ function lockTab() {
     "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px;'></div> </form></div>");
   chrome.storage.local.get("background", function(data) {
     if (data.background.image != "") {
-      $(".form-container").css('background-image', 'url(' + data.background.image  + ')');
+      $(".form-container").css('background-image', 'url(' + data.background.image + ')');
       $(".form-container").css('background-size', data.background.size);
     }
   });
@@ -66,19 +85,19 @@ function lockTab() {
 
 
 //Register mouse move
-$("html").mousemove(function(event){
-  chrome.storage.sync.get("userSettings", function(data){
-    if(data.userSettings.mouseTracking){
-        sendMessageToBackgroundScriptToRefreshTimer();
+$("html").mousemove(function(event) {
+  chrome.storage.sync.get("userSettings", function(data) {
+    if (data.userSettings.mouseTracking) {
+      sendMessageToBackgroundScriptToRefreshTimer();
     }
   });
 });
 
 //Register keyboard pressed
-$("html").keypress(function(event){
-  chrome.storage.sync.get("userSettings", function(data){
-    if(data.userSettings.keyboardTracking){
-        sendMessageToBackgroundScriptToRefreshTimer();
+$("html").keypress(function(event) {
+  chrome.storage.sync.get("userSettings", function(data) {
+    if (data.userSettings.keyboardTracking) {
+      sendMessageToBackgroundScriptToRefreshTimer();
     }
   });
 });
