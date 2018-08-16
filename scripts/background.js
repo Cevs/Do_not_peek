@@ -9,26 +9,41 @@ onStartUp();
 
 function onStartUp() {
   refreshTabs();
-  chrome.storage.sync.get('userSettings', function(data) {
-    protection = data.userSettings.protection;
-    mouseTrack = data.userSettings.mouseTracking;
-    keyboardTrack = data.userSettings.keyboardTracking;
-    interval = data.userSettings.timer;
-    chrome.storage.sync.set({
-      'browserLocked': false
-    });
-    if (protection) {
-      chrome.browserAction.setBadgeText({
-        "text": "On"
-      });
-      createTimer();
-    } else {
-      chrome.browserAction.setBadgeText({
-        "text": "Off"
-      });
-      deleteTimer();
+  createDb();
+  chrome.browserAction.setBadgeText({
+    "text": "Off"
+  });
+}
+
+/*
+ * Create database on first extension loadSettingsPanel
+ * Store default settings
+ */
+function createDb() {
+  chrome.storage.sync.set({
+    "DoNotPeek": {
+      userSettings: {
+        protection: false,
+        mouseTrack: false,
+        keyboardTrack: false,
+        interval: 30,
+      },
+      browserLocked: false
     }
   });
+
+  chrome.storage.local.set({
+    "DoNotPeek": {
+      sitesManagement: {
+        sites: [],
+        status: "lock"
+      },
+      background:{
+        image:"",
+        size:""
+      }
+    }
+  })
 }
 
 //Dodaje svim tabovima listene onActivated
@@ -63,15 +78,22 @@ chrome.runtime.onMessage.addListener(
         deleteTimer();
       }
     } else if (request.action === "UnlockTabs") {
-      chrome.storage.sync.set({
-        'browserLocked': false
-      });
-      refreshTabs();
-      chrome.storage.sync.get("userSettings", function(data) {
-        if (data.userSettings.protection) {
+      chrome.storage.sync.get("DoNotPeek", function(data) {
+        data.DoNotPeek.browserLocked = false;
+        chrome.storage.sync.set({
+          "DoNotPeek": data.DoNotPeek
+        });
+        refreshTabs();
+        if (data.DoNotPeek.userSettings.protection) {
           createTimer();
         }
       });
+      /*refreshTabs();
+      chrome.storage.sync.get("DoNotPeek", function(data) {
+        if (data.userSettings.protection) {
+          createTimer();
+        }
+      });*/
     } else if (request.action === "RefreshTimer") {
       createTimer();
     }
@@ -79,11 +101,11 @@ chrome.runtime.onMessage.addListener(
 );
 
 /*
-  * Handle the storage change event
-  * When protection status in chrome storage changes, update badge accordingly
-*/
+ * Handle the storage change event
+ * When protection status in chrome storage changes, update badge accordingly
+ */
 chrome.storage.onChanged.addListener(function(changes, storageName) {
-  if (changes.userSettings.newValue.protection == true) {
+  if (changes.DoNotPeek.newValue.userSettings.protection == true) {
     chrome.browserAction.setBadgeText({
       "text": "On"
     });
@@ -99,10 +121,11 @@ chrome.storage.onChanged.addListener(function(changes, storageName) {
 function createTimer() {
   deleteTimer();
   timer = setInterval(function() {
-    chrome.storage.sync.get("browserLocked", function(data) {
-      if (!data.browserLocked) {
+    chrome.storage.sync.get("DoNotPeek", function(data) {
+      if (!data.DoNotPeek.browserLocked) {
+        data.DoNotPeek.browserLocked = true;
         chrome.storage.sync.set({
-          'browserLocked': true
+          'DoNotPeek': data.DoNotPeek
         });
         refreshTabs();
         //sendMessageToContentScriptToLockTabs();

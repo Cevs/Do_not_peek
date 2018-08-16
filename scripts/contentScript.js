@@ -1,13 +1,13 @@
 $(function() {
-  chrome.storage.sync.get("browserLocked", function(data) {
-    if (data.browserLocked) {
-      chrome.storage.local.get("sitesManagement", function(data) {
+  chrome.storage.sync.get("DoNotPeek", function(data) {
+    if (data.DoNotPeek.browserLocked) {
+      chrome.storage.local.get("DoNotPeek", function(data) {
         var sitesArr = [];
         url = window.location.href;
-        if (data.sitesManagement.sites != "" && typeof data.sitesManagement.sites !== 'undefined') {
-          sitesArr = data.sitesManagement.sites;
+        if (data.DoNotPeek.sitesManagement.sites != "" && typeof data.DoNotPeek.sitesManagement.sites !== 'undefined') {
+          sitesArr = data.DoNotPeek.sitesManagement.sites;
         }
-        if (data.sitesManagement.status === "lock") {
+        if (data.DoNotPeek.sitesManagement.status === "lock") {
           if ($.isEmptyObject(sitesArr)) {
             lockTab();
           } else {
@@ -68,10 +68,10 @@ function lockTab() {
   $("html").append("<div class='form-container'><form class='form'><h2>Enter password</h2><div class='row'>" +
     "<input id='passwordValue' type='password' placeholder='password'/></br></div><div class='row'>" +
     "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px;'></div> </form></div>");
-  chrome.storage.local.get("background", function(data) {
-    if (data.background.image != "") {
-      $(".form-container").css('background-image', 'url(' + data.background.image + ')');
-      $(".form-container").css('background-size', data.background.size);
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    if (data.DoNotPeek.background.image != "") {
+      $(".form-container").css('background-image', 'url(' + data.DoNotPeek.background.image + ')');
+      $(".form-container").css('background-size', data.DoNotPeek.background.size);
     }
   });
 
@@ -82,8 +82,8 @@ function lockTab() {
   $("#btnSubmitPassword").click(function(e) {
     e.preventDefault();
     password = $("#passwordValue").val();
-    chrome.storage.sync.get('user', function(data) {
-      if (data.user.password == password) {
+    chrome.storage.sync.get('DoNotPeek', function(data) {
+      if (data.DoNotPeek.user.password == password) {
         sendMessageToBackgroundScriptToUnlockTabs();
       } else {
         //Stay locked
@@ -95,8 +95,8 @@ function lockTab() {
 
 //Register mouse move
 $("html").mousemove(function(event) {
-  chrome.storage.sync.get("userSettings", function(data) {
-    if (data.userSettings.mouseTracking) {
+  chrome.storage.sync.get("DoNotPeek", function(data) {
+    if (data.DoNotPeek.userSettings.mouseTracking) {
       sendMessageToBackgroundScriptToRefreshTimer();
     }
   });
@@ -104,8 +104,8 @@ $("html").mousemove(function(event) {
 
 //Register keyboard pressed
 $("html").keypress(function(event) {
-  chrome.storage.sync.get("userSettings", function(data) {
-    if (data.userSettings.keyboardTracking) {
+  chrome.storage.sync.get("DoNotPeek", function(data) {
+    if (data.DoNotPeek.userSettings.keyboardTracking) {
       sendMessageToBackgroundScriptToRefreshTimer();
     }
   });
