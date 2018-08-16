@@ -18,8 +18,14 @@ function onStartUp() {
       'browserLocked': false
     });
     if (protection) {
+      chrome.browserAction.setBadgeText({
+        "text": "On"
+      });
       createTimer();
     } else {
+      chrome.browserAction.setBadgeText({
+        "text": "Off"
+      });
       deleteTimer();
     }
   });
@@ -66,12 +72,27 @@ chrome.runtime.onMessage.addListener(
           createTimer();
         }
       });
-    }else if(request.action === "RefreshTimer"){
+    } else if (request.action === "RefreshTimer") {
       createTimer();
     }
   }
 );
 
+/*
+  * Handle the storage change event
+  * When protection status in chrome storage changes, update badge accordingly
+*/
+chrome.storage.onChanged.addListener(function(changes, storageName) {
+  if (changes.userSettings.newValue.protection == true) {
+    chrome.browserAction.setBadgeText({
+      "text": "On"
+    });
+  } else {
+    chrome.browserAction.setBadgeText({
+      "text": "Off"
+    });
+  }
+});
 
 
 //Create new timer

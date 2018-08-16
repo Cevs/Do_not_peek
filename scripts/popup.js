@@ -209,7 +209,7 @@ $(document).on('click', "#btnRemoveUploadedImage", function() {
 $(document).on('click', "#btnSaveImage", function() {
   $("#statusText").empty();
   var input = ($("#uploadImage"))[0];
-  var imageSize = $("input[name=optradio]:checked").val()
+  var imageSize = $("input[name=backgroundImageRadio]:checked").val()
 
   if (input.files && input.files[0]) {
     var reader = new FileReader();
