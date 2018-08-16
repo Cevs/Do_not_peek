@@ -149,16 +149,33 @@ $(document).on('click', '#setBackgroundBackLink', function(e) {
   loadSettingsPanel(e);
 });
 
+//Navigate to sites management
 $(document).on('click', '#btnSetSiteSettings', function(e) {
   $('.container').load("../html/popup_sites_management.html", function() {
-    chrome.storage.local.get("sites", function(data) {
-      var sitesArr = [];
-      if (data.sites != "" && typeof data.sites !== 'undefined') {
-        sitesArr = data.sites;
+    chrome.storage.local.get("sitesManagement", function(data) {
+      if (data.sitesManagement == "" || typeof data.sitesManagement === 'undefined') {
+        var sitesManagementObj = {
+          sites: [],
+          status: "lock"
+        };
+        chrome.storage.local.set({
+          "sitesManagement": sitesManagementObj
+        });
+        $("#radio-lock").prop("checked", true);
+      } else {
+        var sitesArr = [];
+        if (data.sitesManagement.sites != "" && typeof data.sitesManagement.sites !== 'undefined') {
+          sitesArr = data.sitesManagement.sites;
+        }
+        $.each(sitesArr, function(index, v) {
+          $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
+        });
+        if (data.sitesManagement.status === "lock") {
+          $("#radio-lock").prop("checked", true);
+        } else {
+          $("#radio-unlock").prop("checked", true);
+        }
       }
-      $.each(sitesArr, function(index, v) {
-        $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
-      });
     });
   });
 });
@@ -230,15 +247,19 @@ $(document).on('click', "#btnAddSite", function(e) {
   $("#statusText").empty();
   newSiteUrl = $("#siteUrl").val();
   if (newSiteUrl != "") {
-    chrome.storage.local.get("sites", function(data) {
+    chrome.storage.local.get("sitesManagement", function(data) {
       var sitesArr = [];
-      if (data.sites != "" && typeof data.sites !== 'undefined') {
-        sitesArr = data.sites;
+      if (data.sitesManagement.sites != "" && typeof data.sitesManagement.sites !== 'undefined') {
+        sitesArr = data.sitesManagement.sites;
       }
       if (($.inArray(newSiteUrl, sitesArr)) == -1) {
         sitesArr.push(newSiteUrl);
+        var sitesManagementObj = {
+          sites: sitesArr,
+          status: data.sitesManagement.status
+        };
         chrome.storage.local.set({
-          "sites": sitesArr
+          "sitesManagement": sitesManagementObj
         });
         $("#listOfSites").empty();
         $.each(sitesArr, function(index, v) {
@@ -256,20 +277,46 @@ $(document).on('click', "#btnAddSite", function(e) {
 $(document).on('click', "#btnRemoveSite", function(e) {
   $("#statusText").empty();
   siteUrl = $("#listOfSites option:selected").val();
-  chrome.storage.local.get("sites", function(data) {
+  chrome.storage.local.get("sitesManagement", function(data) {
     var sitesArr = [];
-    if (data.sites != "" && typeof data.sites !== 'undefined') {
-      sitesArr = data.sites;
+    if (data.sitesManagement.sites != "" && typeof data.sitesManagement.sites !== 'undefined') {
+      sitesArr = data.sitesManagement.sites;
     }
     sitesArr.splice($.inArray(siteUrl, sitesArr), 1);
+    var sitesManagementObj = {
+      sites: sitesArr,
+      status: data.sitesManagement.status
+    };
     chrome.storage.local.set({
-      "sites": sitesArr
+      "sitesManagement": sitesManagementObj
     });
     $("#listOfSites").empty();
     $.each(sitesArr, function(index, v) {
       $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
     });
   });
+});
+
+/*
+ * A listener who handles the event of changing the selected option (radio button)
+ * After select has changed, save change in local store
+ */
+$(document).on('change', "input[name=sitesManagementRadio]", function(e) {
+  var radioVal = $("input[name=sitesManagementRadio]:checked").val()
+  chrome.storage.local.get("sitesManagement", function(data) {
+    sitesArr = [];
+    if (data.sitesManagement.sites != "" && typeof data.sitesManagement.sites !== 'undefined') {
+      sitesArr = data.sitesManagement.sites;
+    }
+    sitesManagementObj = {
+      sites: sitesArr,
+      status: radioVal
+    };
+    chrome.storage.local.set({
+      "sitesManagement": sitesManagementObj
+    });
+  });
+
 });
 
 function removeUpload() {

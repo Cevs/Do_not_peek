@@ -1,23 +1,32 @@
 $(function() {
   chrome.storage.sync.get("browserLocked", function(data) {
     if (data.browserLocked) {
-      chrome.storage.local.get("sites", function(data) {
+      chrome.storage.local.get("sitesManagement", function(data) {
         var sitesArr = [];
-        if (data.sites != "" && typeof data.sites !== 'undefined') {
-          sitesArr = data.sites;
-        }
         url = window.location.href;
-        if ($.isEmptyObject(sitesArr)) {
-          lockTab();
+        if (data.sitesManagement.sites != "" && typeof data.sitesManagement.sites !== 'undefined') {
+          sitesArr = data.sitesManagement.sites;
+        }
+        if (data.sitesManagement.status === "lock") {
+          if ($.isEmptyObject(sitesArr)) {
+            lockTab();
+          } else {
+            $.each(sitesArr, function(index, value) {
+              if (url.indexOf(value) != -1) {
+                lockTab();
+              }
+            });
+          }
         } else {
-          $.each(sitesArr, function(index, value) {
-            if (url.indexOf(value) != -1) {
-              //Do not lock
-            } else {
-              //Lock tab
-              lockTab();
-            }
-          });
+          if ($.isEmptyObject(sitesArr)) {
+            lockTab();
+          } else {
+            $.each(sitesArr, function(index, value) {
+              if (url.indexOf(value) == -1) {
+                lockTab();
+              }
+            });
+          }
         }
       });
     }
