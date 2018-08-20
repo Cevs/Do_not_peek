@@ -7,7 +7,18 @@
   width: 400px;
   height: 500px;
   background-color: #F8F8F8;
-  padding:10px;
+  padding: 10px;
+  font-family: 'Lato', serif;
+    font-size:18px;
+}
+
+.popup-body p{
+    font-size:18px;
+}
+
+
+.popup-body button{
+    font-size:18px;
 }
 
 .container {
@@ -147,7 +158,12 @@ label {
 }
 
 .options-table {
+  font-size:18px;
   width: 100%;
+}
+
+.options-table button{
+    font-size:18px;
 }
 
 table {
@@ -162,11 +178,11 @@ table {
 }
 
 .form {
+  font-family: 'Lato', serif;
   border-radius: 5px;
-  background-color: rgb(242, 242, 242, 0.8);
   padding: 20px;
-  width: 350px;
-  height: 180px;
+  width: 370px;
+  height: 190px;
   position: absolute;
   /*it can be fixed too*/
   left: 0;
@@ -176,6 +192,16 @@ table {
   margin: auto;
   overflow: auto;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.form input{
+    font-size:14px;
+}
+.form h1{
+  font-size:27px;
+}
+#btnSubmitPassword{
+    font-size:15px;
 }
 
 .form .row:after {
@@ -225,7 +251,7 @@ table {
 .file-upload-btn {
   width: 100%;
   margin: 0;
-  margin-top:15px;
+  margin-top: 15px;
   color: #fff;
   border: none;
   padding: 10px;
@@ -308,23 +334,25 @@ table {
   transition: all .2s ease;
 }
 
- .radio-group{
-   font-size: 20px;
- }
+.radio-group {
+  font-size: 20px;
+}
 
- select {
-     overflow-y: auto;
-     resize: none;
- }
+select {
+  overflow-y: auto;
+  resize: none;
+}
 
- .radio {
+.radio {
   margin: 0.5rem;
 }
+
 .radio input[type="radio"] {
   position: absolute;
   opacity: 0;
 }
-.radio input[type="radio"] + .radio-label:before {
+
+.radio input[type="radio"]+.radio-label:before {
   content: '';
   background: #f4f4f4;
   border-radius: 100%;
@@ -340,19 +368,72 @@ table {
   text-align: center;
   transition: all 250ms ease;
 }
-.radio input[type="radio"]:checked + .radio-label:before {
+
+.radio input[type="radio"]:checked+.radio-label:before {
   background-color: #3197ee;
   box-shadow: inset 0 0 0 4px #f4f4f4;
 }
-.radio input[type="radio"]:focus + .radio-label:before {
+
+.radio input[type="radio"]:focus+.radio-label:before {
   outline: none;
   border-color: #3197ee;
 }
-.radio input[type="radio"]:disabled + .radio-label:before {
+
+.radio input[type="radio"]:disabled+.radio-label:before {
   box-shadow: inset 0 0 0 4px #f4f4f4;
   border-color: #b4b4b4;
   background: #b4b4b4;
 }
-.radio input[type="radio"] + .radio-label:empty:before {
+
+.radio input[type="radio"]+.radio-label:empty:before {
   margin-right: 0;
+}
+
+.options-card {
+  border: none !important;
+  background-color: #F8F8F8;
+}
+
+hr {
+  margin: 0 !important;
+}
+
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.9;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #343a40;
+  cursor: pointer;
+}
+
+.collapse-link {
+  text-decoration: none !important;
+  font-size: 20px !important;
+  text-align: center !important;
+}
+
+.more-options-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }

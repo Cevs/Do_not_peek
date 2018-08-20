@@ -26,7 +26,7 @@ function createDb() {
         protection: false,
         mouseTrack: false,
         keyboardTrack: false,
-        interval: 30,
+        interval: 30
       },
       browserLocked: false
     }
@@ -38,9 +38,18 @@ function createDb() {
         sites: [],
         status: "lock"
       },
-      background:{
-        image:"",
-        size:""
+      customizationSettings: {
+        backgroundColor: "#ffffff",
+        formColor: "#f2f2f2",
+        buttonColor: "#343a40",
+        buttonFontColor: "#ffffff",
+        formTitleFontColor:  "000000",
+        formOpacity: 80,
+        backgroundOpacity: 100,
+        backgroundImage:{
+          image:"",
+          size:"cover"
+        }
       }
     }
   })
@@ -60,7 +69,6 @@ chrome.tabs.onActivated.addListener(function() {
       // ...
     });
   });
-
 });
 
 //Event handler for updating user userSettings
@@ -88,12 +96,6 @@ chrome.runtime.onMessage.addListener(
           createTimer();
         }
       });
-      /*refreshTabs();
-      chrome.storage.sync.get("DoNotPeek", function(data) {
-        if (data.userSettings.protection) {
-          createTimer();
-        }
-      });*/
     } else if (request.action === "RefreshTimer") {
       createTimer();
     }

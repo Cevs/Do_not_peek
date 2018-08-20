@@ -1,0 +1,107 @@
+<div class="row h-100">
+  <div class="col-sm-12 my-auto">
+    <h2 class="text-center"><a id="setBackgroundBackLink" href="" style="text-decoration:none; margin-right:7px;"><strong><</strong></a><strong>Customization settings</strong></h2><br/>
+    <div class="row">
+      <a data-toggle="collapse" href="#collapseBackgroundImageOptions" role="button" aria-expanded="false" aria-controls="collapseBackgroundImageOptions" class="collapse-link mx-auto">Background Image</a>
+    </div>
+    <hr/>
+    <div class="collapse" id="collapseBackgroundImageOptions">
+      <div class="card card-body options-card">
+        <div class="row">
+          <div class="file-upload">
+            <div class="image-upload-wrap">
+              <input id='uploadImage' class="file-upload-input" type='file' accept="image/*" />
+              <div class="drag-text">
+                <h3>Drag and drop a file or select add Image</h3>
+              </div>
+            </div>
+            <div class="file-upload-content">
+              <img class="file-upload-image" src="#" alt="your image" />
+              <div class="image-title-wrap">
+                <button id='btnRemoveUploadedImage' type="button" class="remove-image btn btn-danger">Remove Image</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row ml-2">
+            <div class="radio">
+              <input id="radioFullSize" name="backgroundImageRadio" type="radio" value="cover">
+              <label for="radioFullSize" class="radio-label">Cover (Full screen)</label>
+            </div>
+            <div class="radio">
+              <input id="radioAutoSize" name="backgroundImageRadio" type="radio" value="auto">
+              <label for="radioAutoSize" class="radio-label">Auto (Pattern)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <a data-toggle="collapse" href="#collapseFormOptions" role="button" aria-expanded="false" aria-controls="collapseFormOptions" class="collapse-link mx-auto">Form options</a>
+    </div>
+    <hr/>
+    <div class="collapse" id="collapseFormOptions">
+      <div class="card card-body options-card">
+        <div class="row">
+          <table class="w-100">
+            <tr class="w-100">
+              <td width="50%" align="left"><strong>Button color: </strong></td>
+              <td width="40%" align="center"><input id="btnColorPicker" type="text" class="jscolor w-50" style="font-size:0; height:25px;"></td>
+              <td width="10%"></td>
+            </tr>
+            <tr class="w-100">
+              <td width="50%" align="left"><strong>Button font color: </strong></td>
+              <td width="40%" align="center"><input id="btnFontColorPicker" type="text" class="jscolor w-50" style="font-size:0; height:25px;"></td>
+              <td width="10%"></td>
+            </tr>
+            <tr class="w-100">
+              <td width="50%" align="left"><strong>Form color: </strong></td>
+              <td width="40%" align="center"><input id="formColorPicker" type="text" class="jscolor w-50" style="font-size:0; height:25px;"></td>
+              <td width="10%"></td>
+            </tr>
+            <tr class="w-100">
+              <td width="50%" align="left"><strong>Form title color: </strong></td>
+              <td width="40%" align="center"><input id="formTitleColorPicker" type="text" class="jscolor w-50" style="font-size:0; height:25px;"></td>
+              <td width="10%"></td>
+            </tr>
+            <tr>
+              <td width="50%" align="left"><strong>Opacity</strong></td>
+              <td width="40%" align="center">
+                <input type="range" min="1" max="100" value="50" class="slider w-75" id="formOpacityRange" />
+              </td>
+              <td width="10%">
+                <span id="formOpacityRangeShow"></span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <a data-toggle="collapse" href="#collapseBackgroundOptions" role="button" aria-expanded="false" aria-controls="collapseBackgroundOptions" class="collapse-link mx-auto">Background color options</a>
+    </div>
+    <div class="collapse" id="collapseBackgroundOptions">
+      <div class="card card-body options-card">
+        <div class="row">
+          <table class="w-100">
+            <tr class="w-100">
+              <td width="50%" align="left"><strong>Background color: </strong></td>
+              <td width="40%" align="center"><input id="backgroundColorPicker" type="text" class="jscolor w-50" style="font-size:0; height:25px;"></td>
+              <td width="10%"></td>
+            </tr>
+            <tr class="w-100">
+              <td width="50%" align="left"><strong>Opacity</strong></td>
+              <td width="40%" align="center">
+                <input type="range" min="1" max="100" value="50" class="slider w-75" id="backgroundOpacityRange">
+              </td>
+              <td width="10%">
+                <span id="backgroundOpacityRangeShow"></span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

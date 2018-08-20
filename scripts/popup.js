@@ -1,6 +1,5 @@
 $(function() {
   chrome.storage.sync.get('DoNotPeek', function(data) {
-
     if (data.DoNotPeek.user == null) {
       $('.container').load('../html/popup_register.html');
     } else {
@@ -126,30 +125,41 @@ $(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, 
   });
 });
 
-//Navigate to set bacground view
+//Navigate to customization settings
 $(document).on('click', "#btnSetBackground", function(e) {
-  $('.container').load("../html/popup_set_background.html", function() {
+  $('.container').load("../html/popup_customization_settings.html", function() {
+    //instantiate jscolor (Needed because of dynamic loading html elements)
+    jscolor.installByClassName("jscolor");
     chrome.storage.local.get('DoNotPeek', function(data) {
-      if (data.DoNotPeek.background.image != "" && typeof data.DoNotPeek.background.image !== 'undefined') {
-        if (data.DoNotPeek.background.size == "cover") {
-          $("#radioFullSize").prop("checked", true);
-        } else if (data.DoNotPeek.background.size == "auto") {
-          $("#radioAutoSize").prop("checked", true);
-        }
+      if (data.DoNotPeek.customizationSettings.backgroundImage.image != "" && typeof data.DoNotPeek.customizationSettings.backgroundImage.image !== 'undefined') {
         $('.image-upload-wrap').hide();
-        $('.file-upload-image').attr('src', data.DoNotPeek.background.image);
+        $('.file-upload-image').attr('src', data.DoNotPeek.customizationSettings.backgroundImage.image);
         $('.file-upload-content').show();
+      }
+      if (data.DoNotPeek.customizationSettings.backgroundImage.size == "cover") {
+        $("#radioFullSize").prop("checked", true);
+      } else if (data.DoNotPeek.customizationSettings.backgroundImage.size == "auto") {
+        $("#radioAutoSize").prop("checked", true);
       } else {
-        if (data.DoNotPeek.background.size != "" && typeof data.DoNotPeek.background.size !== 'undefined') {
-          if (data.DoNotPeek.background.size == "cover") {
-            $("#radioFullSize").prop("checked", true);
-          } else {
-            $("#radioAutoSize").prop("checked", true);
-          }
-          removeUpload();
-        } else {
-          $("#radioFullSize").prop("checked", true);
-        }
+        $("#radioFullSize").prop("checked", true);
+      }
+
+      //Customization userSettings
+      if (data.DoNotPeek.customizationSettings != "" && typeof data.DoNotPeek.customizationSettings !== "undefined") {
+        $("#btnColorPicker").val(data.DoNotPeek.customizationSettings.buttonColor);
+        $("#btnColorPicker").css("background-color", data.DoNotPeek.customizationSettings.buttonColor);
+        $("#btnFontColorPicker").val(data.DoNotPeek.customizationSettings.buttonFontColor);
+        $("#btnFontColorPicker").css("background-color", data.DoNotPeek.customizationSettings.buttonFontColor);
+        $("#formColorPicker").val(data.DoNotPeek.customizationSettings.formColor);
+        $("#formColorPicker").css("background-color", data.DoNotPeek.customizationSettings.formColor);
+        $("#formTitleColorPicker").val(data.DoNotPeek.customizationSettings.formTitleFontColor);
+        $("#formTitleColorPicker").css("background-color", data.DoNotPeek.customizationSettings.formTitleFontColor);
+        $("#formOpacityRange").val(data.DoNotPeek.customizationSettings.formOpacity);
+        $("#formOpacityRangeShow").text(data.DoNotPeek.customizationSettings.formOpacity);
+        $("#backgroundColorPicker").val(data.DoNotPeek.customizationSettings.backgroundColor);
+        $("#backgroundColorPicker").css("background-color", data.DoNotPeek.customizationSettings.backgroundColor);
+        $("#backgroundOpacityRange").val(data.DoNotPeek.customizationSettings.backgroundOpacity);
+        $("#backgroundOpacityRangeShow").text(data.DoNotPeek.customizationSettings.backgroundOpacity);
       }
     });
   });
@@ -212,11 +222,18 @@ $(document).on('change', '#uploadImage', function() {
     var reader = new FileReader();
     reader.onload = function(e) {
       $('.image-upload-wrap').hide();
-
       $('.file-upload-image').attr('src', e.target.result);
       $('.file-upload-content').show();
-
-      $('.image-title').html(input.files[0].name);
+      chrome.storage.local.get("DoNotPeek", function(data) {
+        var backgroundImageObject = {
+          image: e.target.result,
+          size: data.DoNotPeek.customizationSettings.backgroundImage.size
+        };
+        data.DoNotPeek.customizationSettings.backgroundImage = backgroundImageObject;
+        chrome.storage.local.set({
+          "DoNotPeek": data.DoNotPeek
+        });
+      });
     };
     reader.readAsDataURL(input.files[0]);
   } else {
@@ -224,11 +241,25 @@ $(document).on('change', '#uploadImage', function() {
   }
 });
 
+$(document).on('change', "input[name='backgroundImageRadio']", function() {
+  var imageSize = $("input[name=backgroundImageRadio]:checked").val()
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    var backgroundObject = {
+      image: data.DoNotPeek.customizationSettings.backgroundImage.image,
+      size: imageSize
+    };
+    data.DoNotPeek.customizationSettings.backgroundImage = backgroundObject;
+    chrome.storage.local.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+  });
+});
+
 $(document).on('click', "#btnRemoveUploadedImage", function() {
   removeUpload();
 });
 
-$(document).on('click', "#btnSaveImage", function() {
+/*$(document).on('click', "#btnSaveImage", function() {
   $("#statusText").empty();
   var input = ($("#uploadImage"))[0];
   var imageSize = $("input[name=backgroundImageRadio]:checked").val()
@@ -236,12 +267,12 @@ $(document).on('click', "#btnSaveImage", function() {
   if (input.files && input.files[0]) {
     var reader = new FileReader();
     reader.onload = function(e) {
-      var backgroundObject = {
+      var backgroundImageObject = {
         image: e.target.result,
         size: imageSize
       };
       chrome.storage.local.get("DoNotPeek", function(data) {
-        data.DoNotPeek.background = backgroundObject;
+        data.DoNotPeek.customizationSettings.backgroundImage = backgroundImageObject;
         chrome.storage.local.set({
           "DoNotPeek": data.DoNotPeek
         });
@@ -253,12 +284,12 @@ $(document).on('click', "#btnSaveImage", function() {
   } else {
 
     chrome.storage.local.get("DoNotPeek", function(data) {
-      if (data.DoNotPeek.background.image != "") {
-        var backgroundObject = {
-          image: data.DoNotPeek.background.image,
+      if (data.DoNotPeek.customizationSettings.backgroundImage.image != "") {
+        var backgroundImageObject = {
+          image: data.DoNotPeek.customizationSettings.backgroundImage.image,
           size: imageSize
         };
-        data.DoNotPeek.background = backgroundObject;
+        data.DoNotPeek.customizationSettings.backgroundImage = backgroundImageObject;
         chrome.storage.local.set({
           "DoNotPeek": data.DoNotPeek
         });
@@ -269,7 +300,7 @@ $(document).on('click', "#btnSaveImage", function() {
       }
     });
   }
-});
+});*/
 
 //Add new site to list of sites that will not be locked
 $(document).on('click', "#btnAddSite", function(e) {
@@ -350,6 +381,79 @@ $(document).on('change', "input[name=sitesManagementRadio]", function(e) {
   });
 });
 
+$(document).on('change', "#formOpacityRange", function(e) {
+  var formOpacityValue = $("#formOpacityRange").val();
+  $("#formOpacityRangeShow").text(formOpacityValue);
+});
+
+$(document).on('change', "#backgroundOpacityRange", function(e) {
+  var formOpacityValue = $("#backgroundOpacityRange").val();
+  $("#backgroundOpacityRangeShow").text(formOpacityValue);
+});
+
+$(document).on('change', '#btnColorPicker', function() {
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    data.DoNotPeek.customizationSettings.buttonColor = "#" + $("#btnColorPicker").val();
+    chrome.storage.local.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+  });
+});
+
+$(document).on('change','#btnFontColorPicker', function(){
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    data.DoNotPeek.customizationSettings.buttonFontColor = "#" + $("#btnFontColorPicker").val();
+    chrome.storage.local.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+  });
+});
+
+$(document).on('change',"#formTitleColorPicker", function(){
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    data.DoNotPeek.customizationSettings.formTitleFontColor = "#" + $("#formTitleColorPicker").val();
+    chrome.storage.local.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+  });
+});
+
+$(document).on('change', "#formColorPicker", function() {
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    data.DoNotPeek.customizationSettings.formColor = "#" + $("#formColorPicker").val();
+    chrome.storage.local.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+  });
+});
+
+$(document).on('change', "#formOpacityRange", function() {
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    data.DoNotPeek.customizationSettings.formOpacity = $("#formOpacityRange").val();
+    chrome.storage.local.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+  });
+});
+
+$(document).on('change', "#backgroundColorPicker", function() {
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    data.DoNotPeek.customizationSettings.backgroundColor = "#" + $("#backgroundColorPicker").val();
+    chrome.storage.local.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+  });
+});
+
+$(document).on('change', "#backgroundOpacityRange", function() {
+  chrome.storage.local.get("DoNotPeek", function(data) {
+    data.DoNotPeek.customizationSettings.backgroundOpacity = $("#backgroundOpacityRange").val();
+    chrome.storage.local.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+  });
+});
+
 function removeUpload() {
   $('.file-upload-input').replaceWith($('.file-upload-input').clone());
   $('.file-upload-content').hide();
@@ -366,7 +470,7 @@ function removeUpload() {
     size: imageSize
   };
   chrome.storage.local.get("DoNotPeek", function(data) {
-    data.DoNotPeek.background = backgroundObject;
+    data.DoNotPeek.customizationSettings.backgroundImage = backgroundObject;
     chrome.storage.local.set({
       "DoNotPeek": data.DoNotPeek
     });

@@ -65,14 +65,25 @@ function lockTab() {
   //Add elements
   $("html").addClass("html-style");
   $('head title', window.parent.document).text('Restricted');
-  $("html").append("<div class='form-container'><form class='form'><h2>Enter password</h2><div class='row'>" +
+  $("html").append("<div class='form-container'><form class='form'><h1>Enter password</h1><div class='row'>" +
     "<input id='passwordValue' type='password' placeholder='password'/></br></div><div class='row'>" +
     "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px;'></div> </form></div>");
   chrome.storage.local.get("DoNotPeek", function(data) {
-    if (data.DoNotPeek.background.image != "") {
-      $(".form-container").css('background-image', 'url(' + data.DoNotPeek.background.image + ')');
-      $(".form-container").css('background-size', data.DoNotPeek.background.size);
+    if (data.DoNotPeek.customizationSettings.backgroundImage.image != "") {
+      $(".form-container").css('background-image', 'url(' + data.DoNotPeek.customizationSettings.backgroundImage.image + ')');
+      $(".form-container").css('background-size', data.DoNotPeek.customizationSettings.backgroundImage.size);
+    } else {
+      rgbBackground = hexToRgb(data.DoNotPeek.customizationSettings.backgroundColor);
+      backgroundColorValue = rgbBackground + ", " + (data.DoNotPeek.customizationSettings.backgroundOpacity / 100);
+      $(".form-container").css('background', "rgb(" + backgroundColorValue + ")");
     }
+    rgbForm = hexToRgb(data.DoNotPeek.customizationSettings.formColor);
+    formColorValue = rgbForm + ", " + (data.DoNotPeek.customizationSettings.formOpacity / 100);
+    $(".form").css('background', "rgb(" + formColorValue + ")");
+    $("#btnSubmitPassword").css('background-color', data.DoNotPeek.customizationSettings.buttonColor);
+    $(".form h2").css("color", data.DoNotPeek.customizationSettings.formTitleFontColor);
+    $("#btnSubmitPassword ").css("color", data.DoNotPeek.customizationSettings.buttonFontColor);
+
   });
 
 
@@ -110,3 +121,18 @@ $("html").keypress(function(event) {
     }
   });
 });
+
+
+/*
+ * Convert hex value to rgb
+ */
+function hexToRgb(hex) {
+  if (hex.indexOf("#") != -1) {
+    hex = hex.replace("#", '');
+  }
+  var bigint = parseInt(hex, 16);
+  var r = (bigint >> 16) & 255;
+  var g = (bigint >> 8) & 255;
+  var b = bigint & 255;
+  return r + ", " + g + ", " + b;
+}
