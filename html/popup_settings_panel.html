@@ -3,69 +3,69 @@
     <h2 class="text-center"><strong>General options</strong></h2>
     <hr />
     </br>
-      <table class="options-table">
-        <tr>
-          <td align="center">
-            <span><strong>Protection status: <strong></span>
-          </td>
-          <td align="center">
-            <label class="switch-toggle" for="protectionStatus" class="">
+    <table class="options-table">
+      <tr>
+        <td align="right">
+          <span><strong>Protection status: <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="Starts locking timer"></i><strong></span>
+        </td>
+        <td align="center">
+          <label class="switch-toggle" for="protectionStatus" class="">
               <input class="switch-input" type="checkbox" id="protectionStatus"/>
               <span class="switch-label" data-on="On" data-off="Off"></span>
               <span class="switch-handle"></span>
              </label>
-          </td>
-        </tr>
-        <tr>
-          <td align="center">
-            <span><strong>Track mouse: </strong></span>
-          </td>
-          <td align="center">
-            <label class="switch-toggle" for="trackingMouse" class="">
+        </td>
+      </tr>
+      <tr>
+        <td align="right">
+          <span><strong>Track mouse: <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="When turned on,moving mouse will cause locking timer to restart !"></i></strong></span>
+        </td>
+        <td align="center">
+          <label class="switch-toggle" for="trackingMouse" class="">
               <input class="switch-input" type="checkbox" id="trackingMouse"/>
               <span class="switch-label" data-on="On" data-off="Off"></span>
               <span class="switch-handle"></span>
-             </label>
-          </td>
-        </tr>
-        <tr>
-          <td align="center" width="50%">
-            <span><strong>Track keyboard: </strong></span>
-          </td>
-          <td align="center" width="50%">
-            <label class="switch-toggle" for="trackingKeyboard" class="">
+            </label>
+        </td>
+      </tr>
+      <tr>
+        <td align="right" width="50%">
+          <span><strong>Track keyboard: <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="When turned on, using keyboard will cause locking timer to restart !"></i></strong></span>
+        </td>
+        <td align="center" width="50%">
+          <label class="switch-toggle" for="trackingKeyboard" class="">
               <input class="switch-input" type="checkbox" id="trackingKeyboard"/>
               <span class="switch-label" data-on="On" data-off="Off"></span>
               <span class="switch-handle"></span>
              </label>
-          </td>
-        </tr>
-        <tr>
-          <td align="center">
-            <span><strong>Timer (seconds)</strong></span>
-          </td>
-          <td align="center">
-            <input type="number" id="timer" style="width:40%;" value=0 class="text-right" />
-          </td>
-        </tr>
-      </table>
-      <br />
-      <table class="options-table">
-        <tr>
-          <td colspan="2" align="center">
-            <button id="btnChangePasswordView" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Change password</strong></button>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" align="center">
-            <button id="btnSetBackground" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Customization settings</strong></button>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" align="center">
-            <button id="btnSetSiteSettings" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Sites Management</strong></button>
-          </td>
-        </tr>
-      </table>
+        </td>
+      </tr>
+      <tr>
+        <td align="right">
+          <span><strong>Timer (seconds) <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="The number of seconds after which the tabs will lock"></i></strong></span>
+        </td>
+        <td align="center">
+          <input type="number" id="timer" style="width:40%;" value=0 class="text-right" />
+        </td>
+      </tr>
+    </table>
+    <br />
+    <table class="options-table">
+      <tr>
+        <td colspan="2" align="center">
+          <button id="btnChangePasswordView" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Change password</strong></button>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" align="center">
+          <button id="btnSetBackground" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Customization settings</strong></button>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" align="center">
+          <button id="btnSetSiteSettings" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Sites management</strong></button>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>

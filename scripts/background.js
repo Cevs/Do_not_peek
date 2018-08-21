@@ -43,7 +43,7 @@ function createDb() {
         formColor: "#f2f2f2",
         buttonColor: "#343a40",
         buttonFontColor: "#ffffff",
-        formTitleFontColor:  "000000",
+        formTitleFontColor:  "#000000",
         formOpacity: 80,
         backgroundOpacity: 100,
         backgroundImage:{

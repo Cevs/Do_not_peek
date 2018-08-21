@@ -1,6 +1,6 @@
 <div class="row h-100">
   <div class="col-sm-12 my-auto">
-    <h2 class="text-center"><a id="siteSettingsBackLink" href="" style="text-decoration:none; margin-right:7px;"><strong><</strong></a><strong>Sites Management</strong></h2>
+    <h2 class="text-center"><a id="siteSettingsBackLink" href="" style="text-decoration:none; margin-right:7px;"><strong><</strong></a><strong>Sites management</strong></h2>
     <p class="text-center">
       Add url of sites that you wish <strong>(not) to be locked</strong>
     </p>
@@ -12,13 +12,14 @@
     <div class="row m-2">
       <input type="text" id="siteUrl" placeholder="Site url" class="text-center mx-auto w-100" />
     </div>
+    <div id="statusText"></div>
     <div class="row m-3">
       <button id="btnAddSite" type="button" class="btn btn-success mx-auto w-50">Add site</button>
       <button id="btnRemoveSite" type="button" class="btn btn-danger mx-auto w-50">Remove site</button>
     </div>
     <div class="row m-2">
       <div class="radio">
-        <input id="radio-lock" name="sitesManagementRadio" type="radio" value = "lock">
+        <input id="radio-lock" name="sitesManagementRadio" type="radio" value="lock">
         <label for="radio-lock" class="radio-label">Lock only this sites</label>
       </div>
       <div class="radio">
@@ -26,6 +27,5 @@
         <label for="radio-unlock" class="radio-label">Don't lock only this sites</label>
       </div>
     </div>
-    <div id="statusText"></div>
   </div>
 </div>

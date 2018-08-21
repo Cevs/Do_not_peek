@@ -181,8 +181,8 @@ table {
   font-family: 'Lato', serif;
   border-radius: 5px;
   padding: 20px;
-  width: 370px;
-  height: 190px;
+  width: 380px;
+  height: 205px;
   position: absolute;
   /*it can be fixed too*/
   left: 0;
@@ -361,7 +361,6 @@ select {
   width: 1.4em;
   height: 1.4em;
   position: relative;
-  top: -0.2em;
   margin-right: 1em;
   vertical-align: top;
   cursor: pointer;

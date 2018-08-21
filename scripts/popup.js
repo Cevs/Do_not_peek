@@ -1,4 +1,5 @@
 $(function() {
+  $('[data-toggle="tooltip"]').tooltip();
   chrome.storage.sync.get('DoNotPeek', function(data) {
     if (data.DoNotPeek.user == null) {
       $('.container').load('../html/popup_register.html');
@@ -326,6 +327,7 @@ $(document).on('click', "#btnAddSite", function(e) {
         $.each(sitesArr, function(index, v) {
           $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
         });
+        $("#siteUrl").val("");
       } else {
         $status = "<div class='alert alert-warning text-center'><strong>URL of site already added</strong></div>";
         $("#statusText").append($status);
@@ -400,7 +402,7 @@ $(document).on('change', '#btnColorPicker', function() {
   });
 });
 
-$(document).on('change','#btnFontColorPicker', function(){
+$(document).on('change', '#btnFontColorPicker', function() {
   chrome.storage.local.get("DoNotPeek", function(data) {
     data.DoNotPeek.customizationSettings.buttonFontColor = "#" + $("#btnFontColorPicker").val();
     chrome.storage.local.set({
@@ -409,7 +411,7 @@ $(document).on('change','#btnFontColorPicker', function(){
   });
 });
 
-$(document).on('change',"#formTitleColorPicker", function(){
+$(document).on('change', "#formTitleColorPicker", function() {
   chrome.storage.local.get("DoNotPeek", function(data) {
     data.DoNotPeek.customizationSettings.formTitleFontColor = "#" + $("#formTitleColorPicker").val();
     chrome.storage.local.set({

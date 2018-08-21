@@ -51,54 +51,57 @@ function sendMessageToBackgroundScriptToRefreshTimer() {
 
 
 function lockTab() {
-  //Remove elements
-  $('html').attr('style', '');
-  $("link:not([rel*='icon'])").remove();
-  $('script').remove();
-  $('style').remove();
-  $('body').remove();
-  $('meta').remove();
-  //Update elements
-  //Change favicon of tab
-  src = chrome.extension.getURL("../icons/lock.ico");
-  $('link[rel*="icon"]').attr('href', src);
-  //Add elements
-  $("html").addClass("html-style");
-  $('head title', window.parent.document).text('Restricted');
-  $("html").append("<div class='form-container'><form class='form'><h1>Enter password</h1><div class='row'>" +
-    "<input id='passwordValue' type='password' placeholder='password'/></br></div><div class='row'>" +
-    "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px;'></div> </form></div>");
   chrome.storage.local.get("DoNotPeek", function(data) {
-    if (data.DoNotPeek.customizationSettings.backgroundImage.image != "") {
-      $(".form-container").css('background-image', 'url(' + data.DoNotPeek.customizationSettings.backgroundImage.image + ')');
-      $(".form-container").css('background-size', data.DoNotPeek.customizationSettings.backgroundImage.size);
-    } else {
-      rgbBackground = hexToRgb(data.DoNotPeek.customizationSettings.backgroundColor);
-      backgroundColorValue = rgbBackground + ", " + (data.DoNotPeek.customizationSettings.backgroundOpacity / 100);
-      $(".form-container").css('background', "rgb(" + backgroundColorValue + ")");
-    }
     rgbForm = hexToRgb(data.DoNotPeek.customizationSettings.formColor);
     formColorValue = rgbForm + ", " + (data.DoNotPeek.customizationSettings.formOpacity / 100);
-    $(".form").css('background', "rgb(" + formColorValue + ")");
-    $("#btnSubmitPassword").css('background-color', data.DoNotPeek.customizationSettings.buttonColor);
-    $(".form h2").css("color", data.DoNotPeek.customizationSettings.formTitleFontColor);
-    $("#btnSubmitPassword ").css("color", data.DoNotPeek.customizationSettings.buttonFontColor);
+    //Remove elements
+    $('html').attr('style', '');
+    $("link:not([rel*='icon'])").remove();
+    $('script').remove();
+    $('style').remove();
+    $('meta').remove();
+    $('body').remove();
+    //Update elements
+    //Change favicon of tab
+    src = chrome.extension.getURL("../icons/lock.ico");
+    $('link[rel*="icon"]').attr('href', src);
+    //Add elements
+    $("html").addClass("html-style");
+    $('head title', window.parent.document).text('Unauthorized');
+    //create form and set css options
+    if(data.DoNotPeek.customizationSettings.backgroundImage.image != ""){
+      $("html").append("<div class='form-container' style='background-image:url(\""+data.DoNotPeek.customizationSettings.backgroundImage.image+"\"); background-size:"+data.DoNotPeek.customizationSettings.backgroundImage.size+"'>"+
+      "<form class='form' style='background:rgb("+formColorValue+")'><h1 style='color:"+data.DoNotPeek.customizationSettings.formTitleFontColor+"'>Enter password</h1><div class='row'>" +
+        "<input id='passwordValue' type='password' placeholder='password'/>" +
+        "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:"+data.DoNotPeek.customizationSettings.buttonFontColor+"'/></div>" +
+        "<div id='errorText' style='margin-top:10px; color:#E50000; text-align:center; font-size:18px;'></div>" +
+        "</form></div>"
+      );
+    }else{
+      rgbBackground = hexToRgb(data.DoNotPeek.customizationSettings.backgroundColor);
+      backgroundColorValue = rgbBackground + ", " + (data.DoNotPeek.customizationSettings.backgroundOpacity / 100);
+      $("html").append("<div class='form-container' style='background:rgb("+backgroundColorValue+");'>"+
+      "<form class='form' style='background:rgb("+formColorValue+")'><h1 style='color:"+data.DoNotPeek.customizationSettings.formTitleFontColor+"'>Enter password</h1><div class='row'>" +
+        "<input id='passwordValue' type='password' placeholder='password'/>" +
+        "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:"+data.DoNotPeek.customizationSettings.buttonFontColor+";'/></div>" +
+        "<div id='errorText' style='margin-top:10px; color:#E50000; text-align:center; font-size:18px;'></div>" +
+        "</form></div>"
+      );
+    }
 
-  });
-
-
-  //Chnage url without creating new enter in histroy of browser
-  //window.history.replaceState(null, "", "Restircted");
-
-  $("#btnSubmitPassword").click(function(e) {
-    e.preventDefault();
-    password = $("#passwordValue").val();
-    chrome.storage.sync.get('DoNotPeek', function(data) {
-      if (data.DoNotPeek.user.password == password) {
-        sendMessageToBackgroundScriptToUnlockTabs();
-      } else {
-        //Stay locked
-      }
+    $("#btnSubmitPassword").click(function(e) {
+      e.preventDefault();
+      $("#errorText").empty();
+      password = $("#passwordValue").val();
+      chrome.storage.sync.get('DoNotPeek', function(data) {
+        if (data.DoNotPeek.user.password == password) {
+          sendMessageToBackgroundScriptToUnlockTabs();
+        } else {
+          //Stay locked
+          $status = "<strong>Unauthorized</strong>";
+          $("#errorText").append($status);
+        }
+      });
     });
   });
 }
