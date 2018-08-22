@@ -42,7 +42,7 @@ $(document).on('click', '#btnLogin', function(e) {
   chrome.storage.sync.get('DoNotPeek', function(data) {
     var enteredPassword = $("#password").val();
     if (data.DoNotPeek.user.password == enteredPassword) {
-      $('.container').load('../html/popup_settings_panel.html', function() {
+      $('.container').load('../html/popup_general_options.html', function() {
         chrome.storage.sync.get('DoNotPeek', function(data) {
           var protection = data.DoNotPeek.userSettings.protection;
           var mouseTrack = data.DoNotPeek.userSettings.mouseTracking;
@@ -483,7 +483,7 @@ function removeUpload() {
 //Load settings pannel
 function loadSettingsPanel(event) {
   event.preventDefault();
-  $('.container').load('../html/popup_settings_panel.html', function() {
+  $('.container').load('../html/popup_general_options.html', function() {
     chrome.storage.sync.get('DoNotPeek', function(data) {
       var protection = data.DoNotPeek.userSettings.protection;
       var mouseTrack = data.DoNotPeek.userSettings.mouseTracking;
