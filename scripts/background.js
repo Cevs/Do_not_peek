@@ -55,22 +55,6 @@ function createDb() {
   })
 }
 
-//Dodaje svim tabovima listene onActivated
-//Registrira promejenut aktivnog prozora i salje poruku contentScript.js
-chrome.tabs.onActivated.addListener(function() {
-  //Dohvaća sve tabove na kojima je trenutno fokus
-  chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-    lastFocusedWindow: true
-  }, function(tabs) {
-    //salje id taba koji je aktivan (Treba dodati for petlju koja ce provrtit ako postoji vise prozora)
-    chrome.tabs.sendMessage(tabs[0].id, {}, function(response) {
-      // ...
-    });
-  });
-});
-
 //Event handler for updating user userSettings
 //Update settings made by user
 chrome.runtime.onMessage.addListener(
@@ -130,7 +114,6 @@ function createTimer() {
           'DoNotPeek': data.DoNotPeek
         });
         refreshTabs();
-        //sendMessageToContentScriptToLockTabs();
       }
     });
   }, interval * 1000);
@@ -145,7 +128,7 @@ function deleteTimer() {
 }
 
 function refreshTabs() {
-  chrome.tabs.getAllInWindow(null, function(tabs) {
+  chrome.tabs.query({}, function(tabs) {
     for (var i = 0; i < tabs.length; i++) {
       chrome.tabs.update(tabs[i].id, {
         url: tabs[i].url
@@ -153,19 +136,3 @@ function refreshTabs() {
     }
   });
 }
-
-/*function sendMessageToContentScriptToUnlockTabs(){
-  chrome.tabs.getAllInWindow(null, function(tabs) {
-    for (var i = 0; i < tabs.length; i++) {
-      chrome.tabs.sendMessage(tabs[i].id, {action: "UnlockTabs"}, function(response) {});
-    }
-  });
-}
-
-function sendMessageToContentScriptToLockTabs(){
-  chrome.tabs.getAllInWindow(null, function(tabs) {
-    for (var i = 0; i < tabs.length; i++) {
-      chrome.tabs.sendMessage(tabs[i].id, {action: "LockTabs"}, function(response) {});
-    }
-  });
-}*/
