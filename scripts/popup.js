@@ -1,3 +1,9 @@
+var lockKeyBinding;
+var protectionKeyBinding;
+var mouseTrackingKeyBinding;
+var keyboardTrackingKeyBinding;
+var timerKeyBinding;
+
 $(function() {
   $('[data-toggle="tooltip"]').tooltip();
   chrome.storage.sync.get('DoNotPeek', function(data) {
@@ -112,17 +118,17 @@ $(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, 
     chrome.storage.sync.set({
       "DoNotPeek": data.DoNotPeek
     });
-  });
 
-  //Send updated settings to background script
-  chrome.runtime.sendMessage({
-    action: "UpdateUserSettings",
-    data: {
-      protection: protection,
-      keyboardTracking: keyboardTrack,
-      mouseTracking: mouseTrack,
-      timer: seconds
-    }
+    //Send updated settings to background script
+    chrome.runtime.sendMessage({
+      action: "UpdateUserSettings",
+      data: {
+        protection: protection,
+        keyboardTracking: keyboardTrack,
+        mouseTracking: mouseTrack,
+        timer: seconds
+      }
+    });
   });
 });
 
@@ -173,12 +179,12 @@ $(document).on('click', '#btnChangePasswordView', function(e) {
 
 //Navigate to  user settings view from change password view
 $(document).on('click', '#changePasswordBackLink', function(e) {
-  loadSettingsPanel(e);
+  loadGeneralOptions(e);
 });
 
 //Navigate to user settings view from set background btnChangePasswordView
 $(document).on('click', '#setBackgroundBackLink', function(e) {
-  loadSettingsPanel(e);
+  loadGeneralOptions(e);
 });
 
 //Navigate to sites management
@@ -214,7 +220,217 @@ $(document).on('click', '#btnSetSiteSettings', function(e) {
 });
 
 $(document).on('click', "#siteSettingsBackLink", function(e) {
-  loadSettingsPanel(e);
+  loadGeneralOptions(e);
+});
+
+//Navigate  to key bindings view
+$(document).on("click", "#btnKeyBindings", function(e) {
+  lockKeyBinding = [];
+  protectionKeyBinding = [];
+  mouseTrackingKeyBinding = [];
+  keyboardTrackingKeyBinding = [];
+  timerKeyBinding = [];
+  $('.container').load("../html/popup_key_bindings.html", function() {
+    chrome.storage.sync.get("DoNotPeek", function(data) {
+      protectionKeyBindingsText = "";
+      lockKeyBindingsText = "";
+      mouseTrackingKeyBindingText = "";
+      keyboardTrackingKeyBindingText = "";
+      timerKeyBindingText = "";
+      $.each(data.DoNotPeek.keyBindings.protection, function(index, item) {
+        protectionKeyBinding.push(item);
+        if (index == 0) {
+          protectionKeyBindingsText += item;
+        } else {
+          protectionKeyBindingsText += " + " + item;
+        }
+      });
+      $.each(data.DoNotPeek.keyBindings.lock, function(index, item) {
+        lockKeyBinding.push(item);
+        if (index == 0) {
+          lockKeyBindingsText += item;
+        } else {
+          lockKeyBindingsText += " + " + item;
+        }
+      });
+      $.each(data.DoNotPeek.keyBindings.mouseTracking, function(index, item) {
+        mouseTrackingKeyBinding.push(item);
+        if (index == 0) {
+          mouseTrackingKeyBindingText += item;
+        } else {
+          mouseTrackingKeyBindingText += " + " + item;
+        }
+      });
+      $.each(data.DoNotPeek.keyBindings.keyboardTracking, function(index, item) {
+        keyboardTrackingKeyBinding.push(item);
+        if (index == 0) {
+          keyboardTrackingKeyBindingText += item;
+        } else {
+          keyboardTrackingKeyBindingText += " + " + item;
+        }
+      });
+      $.each(data.DoNotPeek.keyBindings.timer, function(index, item) {
+        timerTrackingKeyBinding.push(item);
+        if (index == 0) {
+          timerKeyBindingText += item;
+        } else {
+          timerKeyBindingText += " + " + item;
+        }
+      });
+      $("#protectionKeyBindings").val(protectionKeyBindingsText);
+      $("#lockKeyBindings").val(lockKeyBindingsText);
+      $("#mouseTrackingBinding").val(mouseTrackingKeyBindingText);
+      $("#keyboardTrackingBinding").val(keyboardTrackingKeyBindingText);
+      $("#timerBinding").val(timerKeyBindingText);
+    });
+  });
+});
+
+//Navigate back to general options
+$(document).on("click", "#keyBindingsBackLink", function(e) {
+  loadGeneralOptions(e);
+});
+
+//Register keydown event and update key bindings
+$(document).on("keydown", "#protectionKeyBindings", function(event) {
+  event.preventDefault();
+  keyDown = event.key;
+  if (keyDown == "Control") {
+    keyDown = "Ctrl";
+  }
+  if ($.inArray(keyDown, protectionKeyBinding) == -1) {
+    protectionKeyBinding.push(keyDown);
+  }
+  $.each(protectionKeyBinding, function(index, item) {
+    if (index == 0) {
+      $("#protectionKeyBindings").val(item);
+    } else {
+      $("#protectionKeyBindings").val($("#protectionKeyBindings").val() + " + " + item);
+    }
+  });
+});
+
+//Register keydown event and update key bindings
+$(document).on("keydown", "#lockKeyBindings", function(event) {
+  event.preventDefault();
+  keyDown = event.key;
+  if (keyDown == "Control") {
+    keyDown = "Ctrl";
+  }
+  if ($.inArray(keyDown, lockKeyBinding) == -1) {
+    lockKeyBinding.push(keyDown);
+  }
+  $.each(lockKeyBinding, function(index, item) {
+    if (index == 0) {
+      $("#lockKeyBindings").val(item);
+    } else {
+      $("#lockKeyBindings").val($("#lockKeyBindings").val() + " + " + item);
+    }
+  });
+});
+
+//Register keydown event and update key bindings
+$(document).on("keydown", "#mouseTrackingBinding", function(event) {
+  event.preventDefault();
+  keyDown = event.key;
+  if (keyDown == "Control") {
+    keyDown = "Ctrl";
+  }
+  if ($.inArray(keyDown, mouseTrackingKeyBinding) == -1) {
+    mouseTrackingKeyBinding.push(keyDown);
+  }
+  $.each(mouseTrackingKeyBinding, function(index, item) {
+    if (index == 0) {
+      $("#mouseTrackingBinding").val(item);
+    } else {
+      $("#mouseTrackingBinding").val($("#mouseTrackingBinding").val() + " + " + item);
+    }
+  });
+});
+
+//Register keydown event and update key bindings
+$(document).on("keydown", "#keyboardTrackingBinding", function(event) {
+  event.preventDefault();
+  keyDown = event.key;
+  if (keyDown == "Control") {
+    keyDown = "Ctrl";
+  }
+  if ($.inArray(keyDown, keyboardTrackingKeyBinding) == -1) {
+    keyboardTrackingKeyBinding.push(keyDown);
+  }
+  $.each(keyboardTrackingKeyBinding, function(index, item) {
+    if (index == 0) {
+      $("#keyboardTrackingBinding").val(item);
+    } else {
+      $("#keyboardTrackingBinding").val($("#keyboardTrackingBinding").val() + " + " + item);
+    }
+  });
+});
+
+//Register keydown event and update key bindings
+$(document).on("keydown", "#timerBinding", function(event) {
+  event.preventDefault();
+  keyDown = event.key;
+  if (keyDown == "Control") {
+    keyDown = "Ctrl";
+  }
+  if ($.inArray(keyDown, timerKeyBinding) == -1) {
+    timerKeyBinding.push(keyDown);
+  }
+  $.each(timerKeyBinding, function(index, item) {
+    if (index == 0) {
+      $("#timerBinding").val(item);
+    } else {
+      $("#timerBinding").val($("#timerBinding").val() + " + " + item);
+    }
+  });
+});
+
+//Erase  protection key bindings
+$(document).on("click", "#eraseProtectionKeyBindings", function(e) {
+  protectionKeyBinding = [];
+  $("#protectionKeyBindings").val("");
+});
+
+//Erase  lock key bindings
+$(document).on("click", "#eraseLockKeyBindings", function(e) {
+  lockKeyBinding = [];
+  $("#lockKeyBindings").val("");
+});
+
+//Erase  mouse tracking key bindings
+$(document).on("click", "#eraseMouseTrackingBinding", function(e) {
+  mouseTrackingKeyBinding = [];
+  $("#mouseTrackingBinding").val("");
+});
+
+//Erase  keyboard tracking key bindings
+$(document).on("click", "#eraseKeyboardTrackingBinding", function(e) {
+  keyboardTrackingKeyBinding = [];
+  $("#keyboardTrackingBinding").val("");
+});
+
+//Erase timer tracking key bindings
+$(document).on("click", "#eraseTimerBinding", function(e) {
+  timerKeyBinding = [];
+  $("#timerBinding").val("");
+});
+
+// Save key bindings changes
+$(document).on("click", "#btnSaveKeyBindings", function() {
+  $("#statusText").empty();
+  chrome.storage.sync.get("DoNotPeek", function(data) {
+    data.DoNotPeek.keyBindings.protection = protectionKeyBinding;
+    data.DoNotPeek.keyBindings.lock = lockKeyBinding;
+    data.DoNotPeek.keyBindings.mouseTracking = mouseTrackingKeyBinding;
+    data.DoNotPeek.keyBindings.keyboardTracking = keyboardTrackingKeyBinding;
+    data.DoNotPeek.keyBindings.timer = timerKeyBinding;
+    chrome.storage.sync.set({
+      "DoNotPeek": data.DoNotPeek
+    });
+    $status = "<div class='alert alert-success text-center'><strong>Bindings saved</strong></div>";
+    $("#statusText").append($status);
+  });
 });
 
 $(document).on('change', '#uploadImage', function() {
@@ -260,48 +476,6 @@ $(document).on('click', "#btnRemoveUploadedImage", function() {
   removeUpload();
 });
 
-/*$(document).on('click', "#btnSaveImage", function() {
-  $("#statusText").empty();
-  var input = ($("#uploadImage"))[0];
-  var imageSize = $("input[name=backgroundImageRadio]:checked").val()
-
-  if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var backgroundImageObject = {
-        image: e.target.result,
-        size: imageSize
-      };
-      chrome.storage.local.get("DoNotPeek", function(data) {
-        data.DoNotPeek.customizationSettings.backgroundImage = backgroundImageObject;
-        chrome.storage.local.set({
-          "DoNotPeek": data.DoNotPeek
-        });
-      });
-      $status = "<div class='alert alert-success text-center'><strong>Background saved</strong></div>";
-      $("#statusText").append($status);
-    };
-    reader.readAsDataURL(input.files[0]);
-  } else {
-
-    chrome.storage.local.get("DoNotPeek", function(data) {
-      if (data.DoNotPeek.customizationSettings.backgroundImage.image != "") {
-        var backgroundImageObject = {
-          image: data.DoNotPeek.customizationSettings.backgroundImage.image,
-          size: imageSize
-        };
-        data.DoNotPeek.customizationSettings.backgroundImage = backgroundImageObject;
-        chrome.storage.local.set({
-          "DoNotPeek": data.DoNotPeek
-        });
-        $status = "<div class='alert alert-success text-center'><strong>Background saved</strong></div>";
-        $("#statusText").append($status);
-      } else {
-        removeUpload();
-      }
-    });
-  }
-});*/
 
 //Add new site to list of sites that will not be locked
 $(document).on('click', "#btnAddSite", function(e) {
@@ -456,6 +630,7 @@ $(document).on('change', "#backgroundOpacityRange", function() {
   });
 });
 
+
 function removeUpload() {
   $('.file-upload-input').replaceWith($('.file-upload-input').clone());
   $('.file-upload-content').hide();
@@ -481,7 +656,7 @@ function removeUpload() {
 }
 
 //Load settings pannel
-function loadSettingsPanel(event) {
+function loadGeneralOptions(event) {
   event.preventDefault();
   $('.container').load('../html/popup_general_options.html', function() {
     chrome.storage.sync.get('DoNotPeek', function(data) {

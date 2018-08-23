@@ -1,4 +1,10 @@
+keysPressed = [];
+var keyBindingLock;
+var keyBindingProtection;
+var keyBindingMouseTracking;
+var keyBindingKeyboardTracking;
 $(function() {
+  keysPressed = [];
   chrome.storage.sync.get("DoNotPeek", function(data) {
     if (data.DoNotPeek.browserLocked) {
       chrome.storage.local.get("DoNotPeek", function(data) {
@@ -32,6 +38,72 @@ $(function() {
     }
   });
 });
+
+//Register even on keyup. Add key to array
+$(document).on("keydown", function(event) {
+  keyDown = event.key;
+  if (keyDown == "Control") {
+    keyDown = "Ctrl";
+  }
+  chrome.storage.sync.get("DoNotPeek", function(data) {
+
+    keyBindingLock = data.DoNotPeek.keyBindings.lock;
+    keyBindingProtection = data.DoNotPeek.keyBindings.protection;
+    keyBindingMouseTracking = data.DoNotPeek.keyBindings.mouseTracking;
+    keyBindingKeyboardTracking = data.DoNotPeek.keyBindings.keyboardTracking;
+
+    if ($.inArray(keyDown, keysPressed) == -1) {
+      keysPressed.push(keyDown);
+    }
+
+    //Compare two arrays
+    if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingLock)) && !($.isEmptyObject(keyBindingLock))) {
+      sendMessageToBackgroundScriptToLockTabs();
+    }
+    if((JSON.stringify(keysPressed) == JSON.stringify(keyBindingProtection)) && !($.isEmptyObject(keyBindingProtection))){
+      //Change status of protection
+      sendMessageToBackgroundScriptToActivateProtection();
+    }
+    if((JSON.stringify(keysPressed) == JSON.stringify(keyBindingMouseTracking)) && !($.isEmptyObject(keyBindingMouseTracking))){
+      chrome.storage.sync.get("DoNotPeek", function(data){
+        data.DoNotPeek.userSettings.mouseTracking = !data.DoNotPeek.userSettings.mouseTracking;
+        chrome.storage.sync.set({
+          "DoNotPeek":data.DoNotPeek
+        });
+      });
+    }
+    if((JSON.stringify(keysPressed) == JSON.stringify(keyBindingKeyboardTracking)) && !($.isEmptyObject(keyBindingKeyboardTracking))){
+      chrome.storage.sync.get("DoNotPeek", function(data){
+        data.DoNotPeek.userSettings.keyboardTracking = !data.DoNotPeek.userSettings.keyboardTracking;
+        chrome.storage.sync.set({
+          "DoNotPeek":data.DoNotPeek
+        });
+      });
+    }
+  });
+});
+
+//Register even on keyup. Remove key from array
+$(document).on("keyup", function(event) {
+  removeKey = event.key;
+  if (removeKey == "Control") {
+    removeKey = "Ctrl";
+  }
+  keysPressed.splice($.inArray(removeKey, keysPressed), 1);
+});
+
+function sendMessageToBackgroundScriptToActivateProtection(){
+  chrome.extension.sendMessage({
+    action:"ActivateProtection"
+  }, function(response){});
+}
+
+// Send notificaition to background script to lock browser
+function sendMessageToBackgroundScriptToLockTabs() {
+  chrome.extension.sendMessage({
+    action: "LockTabs"
+  }, function(response) {});
+}
 
 //Send notification to background script to unlock browser
 function sendMessageToBackgroundScriptToUnlockTabs() {
@@ -69,21 +141,21 @@ function lockTab() {
     $("html").addClass("html-style");
     $('head title', window.parent.document).text('Unauthorized');
     //create form and set css options
-    if(data.DoNotPeek.customizationSettings.backgroundImage.image != ""){
-      $("html").append("<div class='form-container' style='background-image:url(\""+data.DoNotPeek.customizationSettings.backgroundImage.image+"\"); background-size:"+data.DoNotPeek.customizationSettings.backgroundImage.size+"'>"+
-      "<form class='form' style='background:rgb("+formColorValue+")'><h1 style='color:"+data.DoNotPeek.customizationSettings.formTitleFontColor+"'>Enter password</h1><div class='row'>" +
+    if (data.DoNotPeek.customizationSettings.backgroundImage.image != "") {
+      $("html").append("<div class='form-container' style='background-image:url(\"" + data.DoNotPeek.customizationSettings.backgroundImage.image + "\"); background-size:" + data.DoNotPeek.customizationSettings.backgroundImage.size + "'>" +
+        "<form class='form' style='background:rgb(" + formColorValue + ")'><h1 style='color:" + data.DoNotPeek.customizationSettings.formTitleFontColor + "'>Enter password</h1><div class='row'>" +
         "<input id='passwordValue' type='password' placeholder='password'/>" +
-        "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:"+data.DoNotPeek.customizationSettings.buttonFontColor+"'/></div>" +
+        "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:" + data.DoNotPeek.customizationSettings.buttonFontColor + "'/></div>" +
         "<div id='errorText' style='margin-top:10px; color:#E50000; text-align:center; font-size:18px;'></div>" +
         "</form></div>"
       );
-    }else{
+    } else {
       rgbBackground = hexToRgb(data.DoNotPeek.customizationSettings.backgroundColor);
       backgroundColorValue = rgbBackground + ", " + (data.DoNotPeek.customizationSettings.backgroundOpacity / 100);
-      $("html").append("<div class='form-container' style='background:rgb("+backgroundColorValue+");'>"+
-      "<form class='form' style='background:rgb("+formColorValue+")'><h1 style='color:"+data.DoNotPeek.customizationSettings.formTitleFontColor+"'>Enter password</h1><div class='row'>" +
+      $("html").append("<div class='form-container' style='background:rgb(" + backgroundColorValue + ");'>" +
+        "<form class='form' style='background:rgb(" + formColorValue + ")'><h1 style='color:" + data.DoNotPeek.customizationSettings.formTitleFontColor + "'>Enter password</h1><div class='row'>" +
         "<input id='passwordValue' type='password' placeholder='password'/>" +
-        "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:"+data.DoNotPeek.customizationSettings.buttonFontColor+";'/></div>" +
+        "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:" + data.DoNotPeek.customizationSettings.buttonFontColor + ";'/></div>" +
         "<div id='errorText' style='margin-top:10px; color:#E50000; text-align:center; font-size:18px;'></div>" +
         "</form></div>"
       );
@@ -106,11 +178,10 @@ function lockTab() {
   });
 }
 
-
 //Register mouse move
 $("html").mousemove(function(event) {
   chrome.storage.sync.get("DoNotPeek", function(data) {
-    if (data.DoNotPeek.userSettings.mouseTracking) {
+    if (data.DoNotPeek.userSettings.mouseTracking && data.DoNotPeek.userSettings.protection) {
       sendMessageToBackgroundScriptToRefreshTimer();
     }
   });
@@ -119,7 +190,7 @@ $("html").mousemove(function(event) {
 //Register keyboard pressed
 $("html").keypress(function(event) {
   chrome.storage.sync.get("DoNotPeek", function(data) {
-    if (data.DoNotPeek.userSettings.keyboardTracking) {
+    if (data.DoNotPeek.userSettings.keyboardTracking && data.DoNotPeek.userSettings.protection) {
       sendMessageToBackgroundScriptToRefreshTimer();
     }
   });

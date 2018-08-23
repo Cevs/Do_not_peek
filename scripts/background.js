@@ -24,9 +24,16 @@ function createDb() {
     "DoNotPeek": {
       userSettings: {
         protection: false,
-        mouseTrack: false,
-        keyboardTrack: false,
+        mouseTracking: false,
+        keyboardTracking: false,
         interval: 30
+      },
+      keyBindings: {
+        protection: "",
+        lock: "",
+        mouseTracking:"",
+        keyboardTracking:"",
+        timer:""
       },
       browserLocked: false
     }
@@ -43,12 +50,12 @@ function createDb() {
         formColor: "#f2f2f2",
         buttonColor: "#343a40",
         buttonFontColor: "#ffffff",
-        formTitleFontColor:  "#000000",
+        formTitleFontColor: "#000000",
         formOpacity: 80,
         backgroundOpacity: 100,
-        backgroundImage:{
-          image:"",
-          size:"cover"
+        backgroundImage: {
+          image: "",
+          size: "cover"
         }
       }
     }
@@ -64,7 +71,7 @@ chrome.runtime.onMessage.addListener(
       mouseTrack = request.data.mouseTracking;
       keyboardTrack = request.data.keyboardTracking;
       interval = request.data.timer;
-      if (protection) {
+      if (protection == true) {
         createTimer();
       } else {
         deleteTimer();
@@ -80,8 +87,32 @@ chrome.runtime.onMessage.addListener(
           createTimer();
         }
       });
+    } else if (request.action === "LockTabs") {
+      chrome.storage.sync.get("DoNotPeek", function(data) {
+        if (data.DoNotPeek.userSettings.protection == true) {
+          data.DoNotPeek.browserLocked = true;
+          chrome.storage.sync.set({
+            "DoNotPeek": data.DoNotPeek
+          });
+          interval = data.DoNotPeek.userSettings.timer;
+          refreshTabs();
+        }
+      });
     } else if (request.action === "RefreshTimer") {
       createTimer();
+    } else if (request.action === "ActivateProtection") {
+      chrome.storage.sync.get("DoNotPeek", function(data) {
+        if (data.DoNotPeek.userSettings.protection == false) {
+          data.DoNotPeek.userSettings.protection = true;
+          chrome.storage.sync.set({
+            "DoNotPeek": data.DoNotPeek
+          });
+          interval = data.DoNotPeek.userSettings.timer;
+          createTimer();
+        } else {
+          //Do nothing
+        }
+      });
     }
   }
 );

@@ -5,20 +5,19 @@
 
 .popup-body {
   width: 400px;
-  height: 500px;
+  height: 540px;
   background-color: #F8F8F8;
   padding: 10px;
   font-family: 'Lato', serif;
-    font-size:18px;
+  font-size: 18px;
 }
 
-.popup-body p{
-    font-size:18px;
+.popup-body p {
+  font-size: 18px;
 }
 
-
-.popup-body button{
-    font-size:18px;
+.popup-body button {
+  font-size: 18px;
 }
 
 .container {
@@ -158,12 +157,12 @@ label {
 }
 
 .options-table {
-  font-size:18px;
+  font-size: 18px;
   width: 100%;
 }
 
-.options-table button{
-    font-size:18px;
+.options-table button {
+  font-size: 18px;
 }
 
 table {
@@ -194,14 +193,16 @@ table {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
-.form input{
-    font-size:14px;
+.form input {
+  font-size: 14px;
 }
-.form h1{
-  font-size:27px;
+
+.form h1 {
+  font-size: 27px;
 }
-#btnSubmitPassword{
-    font-size:15px;
+
+#btnSubmitPassword {
+  font-size: 15px;
 }
 
 .form .row:after {
@@ -435,4 +436,8 @@ hr {
 .more-options-container {
   margin-top: 10px;
   margin-bottom: 10px;
+}
+
+.alert {
+  padding: .4rem 1.25rem !important;
 }
