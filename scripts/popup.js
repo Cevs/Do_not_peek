@@ -40,6 +40,7 @@ $(document).on('click', '#btnLogin', function(e) {
     var enteredPassword = $("#password").val();
     if (data.DoNotPeek.user.password == enteredPassword) {
       $('.container').load('../html/popup_general_settings.html', function() {
+        $('[data-toggle="tooltip"]').tooltip();
         chrome.storage.sync.get('DoNotPeek', function(data) {
           var protection = data.DoNotPeek.generalSettings.protection;
           var mouseTrack = data.DoNotPeek.generalSettings.mouseTracking;
@@ -51,7 +52,6 @@ $(document).on('click', '#btnLogin', function(e) {
           $("#trackingKeyboard").prop('checked', keyboardTrack);
           $("#timer").prop('checked', timer);
           $("#interval").val(seconds);
-          $('[data-toggle="tooltip"]').tooltip();
         });
       });
     } else {
@@ -220,6 +220,7 @@ $(document).on("click", "#btnKeyBindings", function(e) {
   keyboardTrackingKeyBinding = [];
   timerKeyBinding = [];
   $('.container').load("../html/popup_key_bindings.html", function() {
+    $('[data-toggle="tooltip"]').tooltip();
     chrome.storage.sync.get("DoNotPeek", function(data) {
       protectionKeyBindingsText = "";
       lockKeyBindingsText = "";
