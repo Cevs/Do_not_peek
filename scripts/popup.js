@@ -5,7 +5,6 @@ var keyboardTrackingKeyBinding;
 var timerKeyBinding;
 
 $(function() {
-  $('[data-toggle="tooltip"]').tooltip();
   chrome.storage.sync.get('DoNotPeek', function(data) {
     if (data.DoNotPeek.user == null) {
       $('.container').load('../html/popup_register.html');
@@ -52,6 +51,7 @@ $(document).on('click', '#btnLogin', function(e) {
           $("#trackingKeyboard").prop('checked', keyboardTrack);
           $("#timer").prop('checked', timer);
           $("#interval").val(seconds);
+          $('[data-toggle="tooltip"]').tooltip();
         });
       });
     } else {
@@ -125,6 +125,7 @@ $(document).on('click', "#btnSetBackground", function(e) {
   $('.container').load("../html/popup_customization_settings.html", function() {
     //instantiate jscolor (Needed because of dynamic loading html elements)
     jscolor.installByClassName("jscolor");
+    $('[data-toggle="tooltip"]').tooltip();
     chrome.storage.local.get('DoNotPeek', function(data) {
       if (data.DoNotPeek.customizationSettings.backgroundImage.image != "" && typeof data.DoNotPeek.customizationSettings.backgroundImage.image !== 'undefined') {
         $('.image-upload-wrap').hide();
