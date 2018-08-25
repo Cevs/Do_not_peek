@@ -1,12 +1,12 @@
 <div class="row h-100">
   <div class="col-sm-12 my-auto">
-    <h2 class="text-center"><strong>General options</strong></h2>
+    <h2 class="text-center"><strong>General Settings</strong></h2>
     <hr />
     </br>
     <table class="options-table">
       <tr>
         <td align="right">
-          <span><strong>Protection status: <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="Starts locking timer"></i><strong></span>
+          <span><strong>Protection status: <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="Turn on/off protection. Protection needs to be On for key bindings and timer to work!"></i><strong></span>
         </td>
         <td align="center">
           <label class="switch-toggle" for="protectionStatus" class="">
@@ -41,11 +41,23 @@
         </td>
       </tr>
       <tr>
+        <td align="right" width="50%">
+          <span><strong>Timer: <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="Set status of timer !"></i></strong></span>
+        </td>
+        <td align="center" width="50%">
+          <label class="switch-toggle" for="timer" class="">
+              <input class="switch-input" type="checkbox" id="timer"/>
+              <span class="switch-label" data-on="On" data-off="Off"></span>
+              <span class="switch-handle"></span>
+             </label>
+        </td>
+      </tr>
+      <tr>
         <td align="right">
-          <span><strong>Timer (seconds) <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="The number of seconds after which the tabs will lock"></i></strong></span>
+          <span><strong>Interval (seconds) <i class="far fa-question-circle" data-toggle="tooltip" data-placement="top" title="The number of seconds after which the tabs will lock"></i></strong></span>
         </td>
         <td align="center">
-          <input type="number" id="timer" style="width:40%;" value=0 class="text-right" />
+          <input type="number" id="interval" style="width:40%;" value=0 class="text-right" />
         </td>
       </tr>
     </table>
@@ -53,22 +65,22 @@
     <table class="options-table">
       <tr>
         <td colspan="2" align="center">
-          <button id="btnKeyBindings" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Key bindings</strong></button>
+          <button id="btnKeyBindings" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Key Bindings</strong></button>
         </td>
       </tr>
       <tr>
         <td colspan="2" align="center">
-          <button id="btnChangePasswordView" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Change password</strong></button>
+          <button id="btnChangePasswordView" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Change Password</strong></button>
         </td>
       </tr>
       <tr>
         <td colspan="2" align="center">
-          <button id="btnSetBackground" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Customization settings</strong></button>
+          <button id="btnSetBackground" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Customization Settings</strong></button>
         </td>
       </tr>
       <tr>
         <td colspan="2" align="center">
-          <button id="btnSetSiteSettings" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Sites management</strong></button>
+          <button id="btnSetSiteSettings" class="btn btn-outline-dark" style="width:60%" type="button"><strong>Sites Management</strong></button>
         </td>
       </tr>
     </table>

@@ -3,6 +3,7 @@ var keyBindingLock;
 var keyBindingProtection;
 var keyBindingMouseTracking;
 var keyBindingKeyboardTracking;
+var keyBindingTimer;
 $(function() {
   keysPressed = [];
   chrome.storage.sync.get("DoNotPeek", function(data) {
@@ -51,6 +52,7 @@ $(document).on("keydown", function(event) {
     keyBindingProtection = data.DoNotPeek.keyBindings.protection;
     keyBindingMouseTracking = data.DoNotPeek.keyBindings.mouseTracking;
     keyBindingKeyboardTracking = data.DoNotPeek.keyBindings.keyboardTracking;
+    keyBindingTimer = data.DoNotPeek.keyBindings.timer;
 
     if ($.inArray(keyDown, keysPressed) == -1) {
       keysPressed.push(keyDown);
@@ -59,25 +61,31 @@ $(document).on("keydown", function(event) {
     //Compare two arrays
     if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingLock)) && !($.isEmptyObject(keyBindingLock))) {
       sendMessageToBackgroundScriptToLockTabs();
-    }
-    if((JSON.stringify(keysPressed) == JSON.stringify(keyBindingProtection)) && !($.isEmptyObject(keyBindingProtection))){
+    } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingProtection)) && !($.isEmptyObject(keyBindingProtection))) {
       //Change status of protection
       sendMessageToBackgroundScriptToActivateProtection();
-    }
-    if((JSON.stringify(keysPressed) == JSON.stringify(keyBindingMouseTracking)) && !($.isEmptyObject(keyBindingMouseTracking))){
-      chrome.storage.sync.get("DoNotPeek", function(data){
-        data.DoNotPeek.userSettings.mouseTracking = !data.DoNotPeek.userSettings.mouseTracking;
+    } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingMouseTracking)) && !($.isEmptyObject(keyBindingMouseTracking))) {
+      chrome.storage.sync.get("DoNotPeek", function(data) {
+        data.DoNotPeek.generalSettings.mouseTracking = !data.DoNotPeek.generalSettings.mouseTracking;
         chrome.storage.sync.set({
-          "DoNotPeek":data.DoNotPeek
+          "DoNotPeek": data.DoNotPeek
         });
       });
-    }
-    if((JSON.stringify(keysPressed) == JSON.stringify(keyBindingKeyboardTracking)) && !($.isEmptyObject(keyBindingKeyboardTracking))){
-      chrome.storage.sync.get("DoNotPeek", function(data){
-        data.DoNotPeek.userSettings.keyboardTracking = !data.DoNotPeek.userSettings.keyboardTracking;
+    } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingKeyboardTracking)) && !($.isEmptyObject(keyBindingKeyboardTracking))) {
+      chrome.storage.sync.get("DoNotPeek", function(data) {
+        data.DoNotPeek.generalSettings.keyboardTracking = !data.DoNotPeek.generalSettings.keyboardTracking;
         chrome.storage.sync.set({
-          "DoNotPeek":data.DoNotPeek
+          "DoNotPeek": data.DoNotPeek
         });
+      });
+    } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingTimer)) && !($.isEmptyObject(keyBindingTimer))) {
+      chrome.storage.sync.get("DoNotPeek", function(data) {
+
+        data.DoNotPeek.generalSettings.timer = !data.DoNotPeek.generalSettings.timer;
+        chrome.storage.sync.set({
+          "DoNotPeek": data.DoNotPeek
+        });
+        sendMessageToBackgroundScriptToRefreshSettings();
       });
     }
   });
@@ -92,10 +100,10 @@ $(document).on("keyup", function(event) {
   keysPressed.splice($.inArray(removeKey, keysPressed), 1);
 });
 
-function sendMessageToBackgroundScriptToActivateProtection(){
+function sendMessageToBackgroundScriptToActivateProtection() {
   chrome.extension.sendMessage({
-    action:"ActivateProtection"
-  }, function(response){});
+    action: "ActivateProtection"
+  }, function(response) {});
 }
 
 // Send notificaition to background script to lock browser
@@ -114,9 +122,9 @@ function sendMessageToBackgroundScriptToUnlockTabs() {
 
 
 //Send notification to background script to refresh timer
-function sendMessageToBackgroundScriptToRefreshTimer() {
+function sendMessageToBackgroundScriptToRefreshSettings() {
   chrome.extension.sendMessage({
-    action: "RefreshTimer"
+    action: "RefreshSettings"
   }, function(response) {});
 }
 
@@ -133,6 +141,7 @@ function lockTab() {
     $('style').remove();
     $('meta').remove();
     $('body').remove();
+
     //Update elements
     //Change favicon of tab
     src = chrome.extension.getURL("../icons/lock.ico");
@@ -181,8 +190,8 @@ function lockTab() {
 //Register mouse move
 $("html").mousemove(function(event) {
   chrome.storage.sync.get("DoNotPeek", function(data) {
-    if (data.DoNotPeek.userSettings.mouseTracking && data.DoNotPeek.userSettings.protection) {
-      sendMessageToBackgroundScriptToRefreshTimer();
+    if (data.DoNotPeek.generalSettings.mouseTracking && data.DoNotPeek.generalSettings.protection) {
+      sendMessageToBackgroundScriptToRefreshSettings();
     }
   });
 });
@@ -190,8 +199,8 @@ $("html").mousemove(function(event) {
 //Register keyboard pressed
 $("html").keypress(function(event) {
   chrome.storage.sync.get("DoNotPeek", function(data) {
-    if (data.DoNotPeek.userSettings.keyboardTracking && data.DoNotPeek.userSettings.protection) {
-      sendMessageToBackgroundScriptToRefreshTimer();
+    if (data.DoNotPeek.generalSettings.keyboardTracking && data.DoNotPeek.generalSettings.protection) {
+      sendMessageToBackgroundScriptToRefreshSettings();
     }
   });
 });

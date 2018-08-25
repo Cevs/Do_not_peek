@@ -22,15 +22,7 @@ $(document).on('click', '#btnRegister', function(e) {
     var userObj = {
       password: pass
     };
-    var userSettingsObj = {
-      timer: 30,
-      protection: false,
-      keyboardTracking: false,
-      mouseTracking: false
-    };
-
     chrome.storage.sync.get("DoNotPeek", function(data) {
-      data.DoNotPeek.userSettings = userSettingsObj;
       data.DoNotPeek.user = userObj;
       chrome.storage.sync.set({
         "DoNotPeek": data.DoNotPeek
@@ -48,16 +40,18 @@ $(document).on('click', '#btnLogin', function(e) {
   chrome.storage.sync.get('DoNotPeek', function(data) {
     var enteredPassword = $("#password").val();
     if (data.DoNotPeek.user.password == enteredPassword) {
-      $('.container').load('../html/popup_general_options.html', function() {
+      $('.container').load('../html/popup_general_settings.html', function() {
         chrome.storage.sync.get('DoNotPeek', function(data) {
-          var protection = data.DoNotPeek.userSettings.protection;
-          var mouseTrack = data.DoNotPeek.userSettings.mouseTracking;
-          var keyboardTrack = data.DoNotPeek.userSettings.keyboardTracking;
-          var seconds = data.DoNotPeek.userSettings.timer;
+          var protection = data.DoNotPeek.generalSettings.protection;
+          var mouseTrack = data.DoNotPeek.generalSettings.mouseTracking;
+          var keyboardTrack = data.DoNotPeek.generalSettings.keyboardTracking;
+          var timer = data.DoNotPeek.generalSettings.timer;
+          var seconds = data.DoNotPeek.generalSettings.interval;
           $("#protectionStatus").prop('checked', protection);
           $("#trackingMouse").prop('checked', mouseTrack);
           $("#trackingKeyboard").prop('checked', keyboardTrack);
-          $("#timer").val(seconds);
+          $("#timer").prop('checked', timer);
+          $("#interval").val(seconds);
         });
       });
     } else {
@@ -100,35 +94,29 @@ $(document).on('click', "#btnSaveNewPassword", function(e) {
 });
 
 //Update settings
-$(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, #timer", function(e) {
+$(document).on('change', "#protectionStatus, #trackingMouse, #trackingKeyboard, #timer, #interval", function(e) {
   var protection = $('#protectionStatus').is(":checked");
   var mouseTrack = $('#trackingMouse').is(":checked");
   var keyboardTrack = $('#trackingKeyboard').is(":checked");
-  var seconds = $("#timer").val();
+  var timerStatus = $("#timer").is(":checked");
+  var seconds = $("#interval").val();
 
-  var userSettingsObj = {
+  var generalSettingsObj = {
     protection: protection,
     keyboardTracking: keyboardTrack,
     mouseTracking: mouseTrack,
-    timer: seconds
+    timer: timerStatus,
+    interval: seconds
   };
 
   chrome.storage.sync.get("DoNotPeek", function(data) {
-    data.DoNotPeek.userSettings = userSettingsObj;
+    data.DoNotPeek.generalSettings = generalSettingsObj;
     chrome.storage.sync.set({
       "DoNotPeek": data.DoNotPeek
     });
-
-    //Send updated settings to background script
     chrome.runtime.sendMessage({
-      action: "UpdateUserSettings",
-      data: {
-        protection: protection,
-        keyboardTracking: keyboardTrack,
-        mouseTracking: mouseTrack,
-        timer: seconds
-      }
-    });
+      action: "RefreshSettings"
+    }, function(response) {});
   });
 });
 
@@ -151,7 +139,7 @@ $(document).on('click', "#btnSetBackground", function(e) {
         $("#radioFullSize").prop("checked", true);
       }
 
-      //Customization userSettings
+      //Customization generalSettings
       if (data.DoNotPeek.customizationSettings != "" && typeof data.DoNotPeek.customizationSettings !== "undefined") {
         $("#btnColorPicker").val(data.DoNotPeek.customizationSettings.buttonColor);
         $("#btnColorPicker").css("background-color", data.DoNotPeek.customizationSettings.buttonColor);
@@ -270,7 +258,7 @@ $(document).on("click", "#btnKeyBindings", function(e) {
         }
       });
       $.each(data.DoNotPeek.keyBindings.timer, function(index, item) {
-        timerTrackingKeyBinding.push(item);
+        timerKeyBinding.push(item);
         if (index == 0) {
           timerKeyBindingText += item;
         } else {
@@ -658,16 +646,18 @@ function removeUpload() {
 //Load settings pannel
 function loadGeneralOptions(event) {
   event.preventDefault();
-  $('.container').load('../html/popup_general_options.html', function() {
+  $('.container').load('../html/popup_general_settings.html', function() {
     chrome.storage.sync.get('DoNotPeek', function(data) {
-      var protection = data.DoNotPeek.userSettings.protection;
-      var mouseTrack = data.DoNotPeek.userSettings.mouseTracking;
-      var keyboardTrack = data.DoNotPeek.userSettings.keyboardTracking;
-      var seconds = data.DoNotPeek.userSettings.timer;
+      var protection = data.DoNotPeek.generalSettings.protection;
+      var mouseTrack = data.DoNotPeek.generalSettings.mouseTracking;
+      var keyboardTrack = data.DoNotPeek.generalSettings.keyboardTracking;
+      var timerStatus = data.DoNotPeek.generalSettings.timer;
+      var seconds = data.DoNotPeek.generalSettings.interval;
       $("#protectionStatus").prop('checked', protection);
       $("#trackingMouse").prop('checked', mouseTrack);
       $("#trackingKeyboard").prop('checked', keyboardTrack);
-      $("#timer").val(seconds);
+      $("#timer").prop('checked', timerStatus);
+      $("#interval").val(seconds);
     });
   });
 }
