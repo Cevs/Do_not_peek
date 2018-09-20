@@ -14,7 +14,8 @@
   "permissions": [
     "storage",
     "activeTab",
-    "tabs"
+    "tabs",
+    "notifications"
   ],
   "background": {
     "scripts": ["scripts/background.js"],

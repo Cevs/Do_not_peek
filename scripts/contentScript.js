@@ -78,12 +78,19 @@ $(document).on("keydown", function(event) {
     //Compare two arrays
     if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingLock)) && !($.isEmptyObject(keyBindingLock))) {
       sendMessageToBackgroundScriptToLockTabs();
+      sendNotificationMessage("Manually locking tabs", "");
     } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingProtection)) && !($.isEmptyObject(keyBindingProtection))) {
       //Change status of protection
       sendMessageToBackgroundScriptToActivateProtection();
+      sendNotificationMessage("Protection ON", "");
     } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingMouseTracking)) && !($.isEmptyObject(keyBindingMouseTracking))) {
       chrome.storage.sync.get("DoNotPeek", function(data) {
         data.DoNotPeek.generalSettings.mouseTracking = !data.DoNotPeek.generalSettings.mouseTracking;
+        if(data.DoNotPeek.generalSettings.mouseTracking){
+          sendNotificationMessage("Mouse Tracking ON", "");
+        }else{
+          sendNotificationMessage("Mouse Tracking OFF", "");
+        }
         chrome.storage.sync.set({
           "DoNotPeek": data.DoNotPeek
         });
@@ -91,14 +98,23 @@ $(document).on("keydown", function(event) {
     } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingKeyboardTracking)) && !($.isEmptyObject(keyBindingKeyboardTracking))) {
       chrome.storage.sync.get("DoNotPeek", function(data) {
         data.DoNotPeek.generalSettings.keyboardTracking = !data.DoNotPeek.generalSettings.keyboardTracking;
+        if(data.DoNotPeek.generalSettings.keyboardTracking){
+          sendNotificationMessage("Keyboard Tracking ON", "");
+        }else{
+          sendNotificationMessage("Keyboard Tracking OFF", "");
+        }
         chrome.storage.sync.set({
           "DoNotPeek": data.DoNotPeek
         });
       });
     } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingTimer)) && !($.isEmptyObject(keyBindingTimer))) {
       chrome.storage.sync.get("DoNotPeek", function(data) {
-
         data.DoNotPeek.generalSettings.timer = !data.DoNotPeek.generalSettings.timer;
+        if(data.DoNotPeek.generalSettings.timer ){
+          sendNotificationMessage("Timer ON", "");
+        }else{
+          sendNotificationMessage("Timer OFF", "");
+        }
         chrome.storage.sync.set({
           "DoNotPeek": data.DoNotPeek
         });
@@ -171,39 +187,39 @@ function lockTab() {
     //create form and set css options
     if (data.DoNotPeek.customizationSettings.backgroundImage.image != "") {
       $("html").append("<div class='form-container' style='background-image:url(\"" + data.DoNotPeek.customizationSettings.backgroundImage.image + "\"); background-size:" + data.DoNotPeek.customizationSettings.backgroundImage.size + "'>" +
-        "<form class='form' style='background:rgb(" + formColorValue + ")'><h1 style='color:" + data.DoNotPeek.customizationSettings.formTitleFontColor + "'>Enter password</h1><div class='row'>" +
-        "<input id='passwordValue' type='password' placeholder='password'/>" +
-        "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:" + data.DoNotPeek.customizationSettings.buttonFontColor + "'/></div>" +
-        "<div id='errorText' style='margin-top:10px; color:#E50000; text-align:center; font-size:18px;'></div>" +
-        "</form></div>"
-      );
-    } else {
-      rgbBackground = hexToRgb(data.DoNotPeek.customizationSettings.backgroundColor);
-      backgroundColorValue = rgbBackground + ", " + (data.DoNotPeek.customizationSettings.backgroundOpacity / 100);
-      $("html").append("<div class='form-container' style='background:rgb(" + backgroundColorValue + ");'>" +
-        "<form class='form' style='background:rgb(" + formColorValue + ")'><h1 style='color:" + data.DoNotPeek.customizationSettings.formTitleFontColor + "'>Enter password</h1><div class='row'>" +
-        "<input id='passwordValue' type='password' placeholder='password'/>" +
-        "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:" + data.DoNotPeek.customizationSettings.buttonFontColor + ";'/></div>" +
-        "<div id='errorText' style='margin-top:10px; color:#E50000; text-align:center; font-size:18px;'></div>" +
-        "</form></div>"
-      );
-    }
+      "<form class='form' style='background:rgb(" + formColorValue + ")'><h1 style='color:" + data.DoNotPeek.customizationSettings.formTitleFontColor + "'>Enter password</h1><div class='row'>" +
+      "<input id='passwordValue' type='password' placeholder='password'/>" +
+      "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:" + data.DoNotPeek.customizationSettings.buttonFontColor + "'/></div>" +
+      "<div id='errorText' style='margin-top:10px; color:#E50000; text-align:center; font-size:18px;'></div>" +
+      "</form></div>"
+    );
+  } else {
+    rgbBackground = hexToRgb(data.DoNotPeek.customizationSettings.backgroundColor);
+    backgroundColorValue = rgbBackground + ", " + (data.DoNotPeek.customizationSettings.backgroundOpacity / 100);
+    $("html").append("<div class='form-container' style='background:rgb(" + backgroundColorValue + ");'>" +
+    "<form class='form' style='background:rgb(" + formColorValue + ")'><h1 style='color:" + data.DoNotPeek.customizationSettings.formTitleFontColor + "'>Enter password</h1><div class='row'>" +
+    "<input id='passwordValue' type='password' placeholder='password'/>" +
+    "<input id='btnSubmitPassword' type='submit' value='Submit' style='width:100%; margin-top:20px; background-color: " + data.DoNotPeek.customizationSettings.buttonColor + "; color:" + data.DoNotPeek.customizationSettings.buttonFontColor + ";'/></div>" +
+    "<div id='errorText' style='margin-top:10px; color:#E50000; text-align:center; font-size:18px;'></div>" +
+    "</form></div>"
+  );
+}
 
-    $("#btnSubmitPassword").click(function(e) {
-      e.preventDefault();
-      $("#errorText").empty();
-      password = $("#passwordValue").val();
-      chrome.storage.sync.get('DoNotPeek', function(data) {
-        if (data.DoNotPeek.user.password == password) {
-          sendMessageToBackgroundScriptToUnlockTabs();
-        } else {
-          //Stay locked
-          $status = "<strong>Unauthorized</strong>";
-          $("#errorText").append($status);
-        }
-      });
-    });
+$("#btnSubmitPassword").click(function(e) {
+  e.preventDefault();
+  $("#errorText").empty();
+  password = $("#passwordValue").val();
+  chrome.storage.sync.get('DoNotPeek', function(data) {
+    if (data.DoNotPeek.user.password == password) {
+      sendMessageToBackgroundScriptToUnlockTabs();
+    } else {
+      //Stay locked
+      $status = "<strong>Unauthorized</strong>";
+      $("#errorText").append($status);
+    }
   });
+});
+});
 }
 
 //Register mouse move
@@ -226,8 +242,8 @@ $("html").keypress(function(event) {
 
 
 /*
- * Convert hex value to rgb
- */
+* Convert hex value to rgb
+*/
 function hexToRgb(hex) {
   if (hex.indexOf("#") != -1) {
     hex = hex.replace("#", '');
@@ -237,4 +253,18 @@ function hexToRgb(hex) {
   var g = (bigint >> 8) & 255;
   var b = bigint & 255;
   return r + ", " + g + ", " + b;
+}
+
+function sendNotificationMessage(customTitle, customMessage){
+  var notifOptions = {
+    type:"basic",
+    iconUrl:"../icons/hide_128.png",
+    title:customTitle,
+    message:customMessage,
+    priority:2
+  };
+  chrome.extension.sendMessage({
+    action: "ShowNotification",
+    notification:notifOptions
+  }, function(response) {});
 }

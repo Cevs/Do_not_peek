@@ -113,6 +113,8 @@ chrome.runtime.onMessage.addListener(
           //Do nothing
         }
       });
+    } else if (request.action === "ShowNotification"){
+      chrome.notifications.create("Notification", request.notification);
     }
   }
 );
@@ -122,7 +124,7 @@ chrome.runtime.onMessage.addListener(
  * When protection status in chrome storage changes, update badge accordingly
  */
 chrome.storage.onChanged.addListener(function(changes, storageName) {
-  if (typeof changes.DoNotPeek.newValue.generalSettings.protection !== 'undefined'){
+  if (typeof changes.DoNotPeek !== 'undefined'){
     if (changes.DoNotPeek.newValue.generalSettings.protection == true) {
       chrome.browserAction.setBadgeText({
         "text": "On"
