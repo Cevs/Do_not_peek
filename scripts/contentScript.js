@@ -4,8 +4,13 @@ var keyBindingProtection;
 var keyBindingMouseTracking;
 var keyBindingKeyboardTracking;
 var keyBindingTimer;
-$(function() {
-  keysPressed = [];
+var tabLocked;
+
+determineStatusOfPage();
+//Function for determining if page needs to be locked. Determination is done by analyzing user settings stored in db
+
+function determineStatusOfPage(){
+  tabLocked = false;
   chrome.storage.sync.get("DoNotPeek", function(data) {
     if (data.DoNotPeek.browserLocked) {
       chrome.storage.local.get("DoNotPeek", function(data) {
@@ -14,30 +19,42 @@ $(function() {
         if (data.DoNotPeek.sitesManagement.sites != "" && typeof data.DoNotPeek.sitesManagement.sites !== 'undefined') {
           sitesArr = data.DoNotPeek.sitesManagement.sites;
         }
-        if (data.DoNotPeek.sitesManagement.status === "lock") {
-          if ($.isEmptyObject(sitesArr)) {
-            lockTab();
-          } else {
-            $.each(sitesArr, function(index, value) {
-              if (url.indexOf(value) != -1) {
-                lockTab();
-              }
-            });
-          }
-        } else {
-          if ($.isEmptyObject(sitesArr)) {
-            lockTab();
-          } else {
-            $.each(sitesArr, function(index, value) {
-              if (url.indexOf(value) == -1) {
-                lockTab();
-              }
-            });
-          }
+        if ($.isEmptyObject(sitesArr)) {
+          tabLocked = true;
+          $('html').attr('style', 'display:none');
+        } else if (data.DoNotPeek.sitesManagement.status === "lock") {
+          $.each(sitesArr, function(index, value) {
+            if (url.indexOf(value) != -1) {
+              tabLocked = true;
+              $('html').attr('style', 'display:none');
+              return false; //break
+            }
+          });
+        } else if (data.DoNotPeek.sitesManagement.status === "unlock") {
+          $.each(sitesArr, function(index, value) {
+            if (url.indexOf(value) == -1) {
+              tabLocked = true;
+              $('html').attr('style', 'display:none');
+              return false; //break
+            }
+          });
         }
       });
     }
   });
+}
+
+
+//$(document).ready(){} function
+//Check if status of tab is set to locked. If true, lock tab
+$(window).on("load", function(){
+  keysPressed = [];
+  if (tabLocked == true) {
+    lockTab();
+    window.stop(); // Need for stopping ajax (example youtube videos)
+  } else {
+    $('html').attr('style', 'display:');
+  }
 });
 
 //Register even on keyup. Add key to array
@@ -138,6 +155,8 @@ function lockTab() {
     $('html').attr('style', '');
     $("link:not([rel*='icon'])").remove();
     $('script').remove();
+    $("frameset").remove();
+    $("frame").remove();
     $('style').remove();
     $('meta').remove();
     $('body').remove();

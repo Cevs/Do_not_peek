@@ -78,7 +78,7 @@ chrome.runtime.onMessage.addListener(
         }else{
           deleteTimer();
         }
-      });  
+      });
     } else if (request.action === "UnlockTabs") {
       chrome.storage.sync.get("DoNotPeek", function(data) {
         data.DoNotPeek.browserLocked = false;
@@ -122,11 +122,17 @@ chrome.runtime.onMessage.addListener(
  * When protection status in chrome storage changes, update badge accordingly
  */
 chrome.storage.onChanged.addListener(function(changes, storageName) {
-  if (changes.DoNotPeek.newValue.generalSettings.protection == true) {
-    chrome.browserAction.setBadgeText({
-      "text": "On"
-    });
-  } else {
+  if (typeof changes.DoNotPeek.newValue.generalSettings.protection !== 'undefined'){
+    if (changes.DoNotPeek.newValue.generalSettings.protection == true) {
+      chrome.browserAction.setBadgeText({
+        "text": "On"
+      });
+    } else {
+      chrome.browserAction.setBadgeText({
+        "text": "Off"
+      });
+    }
+  }else{
     chrome.browserAction.setBadgeText({
       "text": "Off"
     });

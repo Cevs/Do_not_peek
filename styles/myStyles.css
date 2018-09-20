@@ -441,3 +441,8 @@ hr {
 .alert {
   padding: .4rem 1.25rem !important;
 }
+
+.table-key-bindings button{
+  width:50px;
+  height:35px;
+}
