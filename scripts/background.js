@@ -17,9 +17,9 @@ function onStartUp() {
 }
 
 /*
- * Create database on first extension loadSettingsPanel
- * Store default settings
- */
+* Create database on first extension loadSettingsPanel
+* Store default settings
+*/
 function createDb() {
   chrome.storage.sync.set({
     "DoNotPeek": {
@@ -120,9 +120,9 @@ chrome.runtime.onMessage.addListener(
 );
 
 /*
- * Handle the storage change event
- * When protection status in chrome storage changes, update badge accordingly
- */
+* Handle the storage change event
+* When protection status in chrome storage changes, update badge accordingly
+*/
 chrome.storage.onChanged.addListener(function(changes, storageName) {
   if (typeof changes.DoNotPeek !== 'undefined'){
     if (changes.DoNotPeek.newValue.generalSettings.protection == true) {
@@ -177,3 +177,15 @@ function refreshTabs() {
     }
   });
 }
+
+/*
+  * Detect when user open extension tab in chrome
+  * If protection is ON, close extension tab before load
+*/
+chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
+  chrome.storage.sync.get("DoNotPeek", function(data){
+    if(data.DoNotPeek.generalSettings.protection == true){
+      chrome.tabs.remove(details.tabId);
+    }
+  });
+}, {url: [{urlMatches : 'chrome://extensions'}]});

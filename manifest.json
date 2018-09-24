@@ -15,7 +15,8 @@
     "storage",
     "activeTab",
     "tabs",
-    "notifications"
+    "notifications",
+    "webNavigation"
   ],
   "background": {
     "scripts": ["scripts/background.js"],
