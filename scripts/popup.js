@@ -622,6 +622,9 @@ $(document).on('click', "#btnQuickLock", function(){
     });
     sendMessageToBackgroundScriptToLockTabs();
   });
+  chrome.browserAction.setBadgeText({
+    "text": "On"
+  });
 });
 
 $(document).on('change', "#backgroundOpacityRange", function() {
