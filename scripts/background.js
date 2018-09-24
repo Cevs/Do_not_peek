@@ -92,7 +92,7 @@ chrome.runtime.onMessage.addListener(
       });
     } else if (request.action === "LockTabs") {
       chrome.storage.sync.get("DoNotPeek", function(data) {
-        if (data.DoNotPeek.generalSettings.protection == true) {
+        if (data.DoNotPeek.generalSettings.protection == true && data.DoNotPeek.browserLocked != true) {
           data.DoNotPeek.browserLocked = true;
           chrome.storage.sync.set({
             "DoNotPeek": data.DoNotPeek

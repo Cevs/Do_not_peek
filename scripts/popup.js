@@ -611,6 +611,19 @@ $(document).on('change', "#backgroundColorPicker", function() {
   });
 });
 
+/*
+  Performe quick lock of browser
+*/
+$(document).on('click', "#btnQuickLock", function(){
+  chrome.storage.sync.get("DoNotPeek", function(data){
+    data.DoNotPeek.generalSettings.protection  = true;
+    chrome.storage.sync.set({
+      "DoNotPeek":data.DoNotPeek
+    });
+    sendMessageToBackgroundScriptToLockTabs();
+  });
+});
+
 $(document).on('change', "#backgroundOpacityRange", function() {
   chrome.storage.local.get("DoNotPeek", function(data) {
     data.DoNotPeek.customizationSettings.backgroundOpacity = $("#backgroundOpacityRange").val();
@@ -662,4 +675,11 @@ function loadGeneralOptions(event) {
       $("#interval").val(seconds);
     });
   });
+}
+
+// Send notificaition to background script to lock browser
+function sendMessageToBackgroundScriptToLockTabs() {
+  chrome.runtime.sendMessage({
+    action: "LockTabs"
+  }, function(response) {});
 }
