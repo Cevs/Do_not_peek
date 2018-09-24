@@ -74,8 +74,14 @@ chrome.runtime.onMessage.addListener(
         timerStatus = data.DoNotPeek.generalSettings.timer;
         interval = data.DoNotPeek.generalSettings.interval;
         if (data.DoNotPeek.generalSettings.protection == true) {
+          chrome.browserAction.setBadgeText({
+            "text": "On"
+          });
           createTimer();
         }else{
+          chrome.browserAction.setBadgeText({
+            "text": "Off"
+          });
           deleteTimer();
         }
       });
@@ -107,6 +113,9 @@ chrome.runtime.onMessage.addListener(
           chrome.storage.sync.set({
             "DoNotPeek": data.DoNotPeek
           });
+          chrome.browserAction.setBadgeText({
+            "text": "On"
+          });
           interval = data.DoNotPeek.generalSettings.interval;
           createTimer();
         } else {
@@ -118,29 +127,6 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
-
-/*
-* Handle the storage change event
-* When protection status in chrome storage changes, update badge accordingly
-*/
-chrome.storage.onChanged.addListener(function(changes, storageName) {
-  if (typeof changes.DoNotPeek !== 'undefined'){
-    if (changes.DoNotPeek.newValue.generalSettings.protection == true) {
-      chrome.browserAction.setBadgeText({
-        "text": "On"
-      });
-    } else {
-      chrome.browserAction.setBadgeText({
-        "text": "Off"
-      });
-    }
-  }else{
-    chrome.browserAction.setBadgeText({
-      "text": "Off"
-    });
-  }
-});
-
 
 // Delete previos timer and Create new timer if needed
 function createTimer() {
@@ -188,4 +174,4 @@ chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
       chrome.tabs.remove(details.tabId);
     }
   });
-}, {url: [{urlMatches : 'chrome://extensions'}]});
+}, {url: [{urlMatches : 'chrome://*'}]});
