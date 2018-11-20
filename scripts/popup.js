@@ -183,6 +183,7 @@ $(document).on('click', '#btnSetSiteSettings', function(e) {
       if (data.DoNotPeek.sitesManagement == "" || typeof data.DoNotPeek.sitesManagement === 'undefined') {
         var sitesManagementObj = {
           sites: [],
+          site_schemes: [],
           status: "lock"
         };
         data.DoNotPeek.sitesManagement = sitesManagementObj;
@@ -466,21 +467,44 @@ $(document).on('click', "#btnRemoveUploadedImage", function() {
   removeUpload();
 });
 
+/*
+  Reformat a user's entry
+*/
+function reformateURL(url){
+  var urlScheme = "";
+  var start = url.indexOf("www.");
+  var end = url.lastIndexOf(".com")+4;
+  var slicedUrl = url.slice(start,end);
+  return slicedUrl;
+}
 
-//Add new site to list of sites that will not be locked
+/*
+  Create URL scheme from reformated URL
+*/
+function createURLScheme(slicedUrl){
+  urlScheme = "*://"+slicedUrl+"/*";
+  return urlScheme
+}
+
+//Add new site to list of sites that will (not) be locked
 $(document).on('click', "#btnAddSite", function(e) {
   $("#statusText").empty();
-  newSiteUrl = $("#siteUrl").val();
+  newSiteUrl = reformateURL($("#siteUrl").val());
+  newSiteUrlScheme = createURLScheme(newSiteUrl);
   if (newSiteUrl != "") {
     chrome.storage.local.get("DoNotPeek", function(data) {
       var sitesArr = [];
+      var sitesArrScheme = [];
       if (data.DoNotPeek.sitesManagement.sites != "" && typeof data.DoNotPeek.sitesManagement.sites !== 'undefined') {
         sitesArr = data.DoNotPeek.sitesManagement.sites;
+        sitesArrScheme = data.DoNotPeek.sitesManagement.site_schemes;
       }
       if (($.inArray(newSiteUrl, sitesArr)) == -1) {
         sitesArr.push(newSiteUrl);
+        sitesArrScheme.push(newSiteUrlScheme);
         var sitesManagementObj = {
           sites: sitesArr,
+          site_schemes: sitesArrScheme,
           status: data.DoNotPeek.sitesManagement.status
         };
         data.DoNotPeek.sitesManagement = sitesManagementObj;
@@ -504,14 +528,19 @@ $(document).on('click', "#btnAddSite", function(e) {
 $(document).on('click', "#btnRemoveSite", function(e) {
   $("#statusText").empty();
   siteUrl = $("#listOfSites option:selected").val();
+  siteUrlScheme = createURLScheme(siteUrl);
   chrome.storage.local.get("DoNotPeek", function(data) {
     var sitesArr = [];
+    var sitesArrScheme = [];
     if (data.DoNotPeek.sitesManagement.sites != "" && typeof data.DoNotPeek.sitesManagement.sites !== 'undefined') {
       sitesArr = data.DoNotPeek.sitesManagement.sites;
+      sitesArrScheme = data.DoNotPeek.sitesManagement.site_schemes;
     }
     sitesArr.splice($.inArray(siteUrl, sitesArr), 1);
+    sitesArrScheme.splice($.inArray(siteUrlScheme, sitesArrScheme),1);
     var sitesManagementObj = {
       sites: sitesArr,
+      site_schemes:sitesArrScheme,
       status: data.DoNotPeek.sitesManagement.status
     };
     data.DoNotPeek.sitesManagement = sitesManagementObj;
@@ -625,6 +654,7 @@ $(document).on('click', "#btnQuickLock", function(){
   chrome.browserAction.setBadgeText({
     "text": "On"
   });
+  $("#protectionStatus").prop('checked', true);
 });
 
 $(document).on('change', "#backgroundOpacityRange", function() {

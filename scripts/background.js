@@ -46,6 +46,7 @@ function createDb() {
     "DoNotPeek": {
       sitesManagement: {
         sites: [],
+        site_schemes:[],
         status: "lock"
       },
       customizationSettings: {
@@ -91,87 +92,155 @@ chrome.runtime.onMessage.addListener(
         chrome.storage.sync.set({
           "DoNotPeek": data.DoNotPeek
         });
-        refreshTabs();
-        if (data.DoNotPeek.generalSettings.protection) {
-          createTimer();
-        }
-      });
-    } else if (request.action === "LockTabs") {
-      chrome.storage.sync.get("DoNotPeek", function(data) {
-        if (data.DoNotPeek.generalSettings.protection == true && data.DoNotPeek.browserLocked != true) {
-          data.DoNotPeek.browserLocked = true;
-          chrome.storage.sync.set({
-            "DoNotPeek": data.DoNotPeek
-          });
+        chrome.webRequest.onBeforeRequest.removeListener(
+          blockScripts,
+          {urls: ["<all_urls>"]},
+          ["blocking"]);
+          chrome.webRequest.onBeforeRequest.removeListener(
+            allowScripts,
+            {urls: ["<all_urls>"]},
+            ["blocking"]);
           refreshTabs();
-        }
-      });
-    } else if (request.action === "ActivateProtection") {
-      chrome.storage.sync.get("DoNotPeek", function(data) {
-        if (data.DoNotPeek.generalSettings.protection == false) {
-          data.DoNotPeek.generalSettings.protection = true;
-          chrome.storage.sync.set({
-            "DoNotPeek": data.DoNotPeek
-          });
-          chrome.browserAction.setBadgeText({
-            "text": "On"
-          });
-          interval = data.DoNotPeek.generalSettings.interval;
-          createTimer();
-        } else {
-          //Do nothing
-        }
-      });
-    } else if (request.action === "ShowNotification"){
-      chrome.notifications.create("Notification", request.notification);
+          if (data.DoNotPeek.generalSettings.protection) {
+            createTimer();
+          }
+        });
+      } else if (request.action === "LockTabs") {
+        chrome.storage.sync.get("DoNotPeek", function(data) {
+          if (data.DoNotPeek.generalSettings.protection == true && data.DoNotPeek.browserLocked != true) {
+            data.DoNotPeek.browserLocked = true;
+            chrome.storage.sync.set({
+              "DoNotPeek": data.DoNotPeek
+            });
+
+            //Izvodi se samo jednom
+            chrome.storage.local.get("DoNotPeek", function(data){
+                siteSchemes = data.DoNotPeek.sitesManagement.site_schemes;
+                var status = data.DoNotPeek.sitesManagement.status;
+                if(status == "lock" && siteSchemes.length != 0){
+                    chrome.webRequest.onBeforeRequest.addListener(
+                    blockScripts,
+                    {urls: siteSchemes},
+                    ["blocking"]);
+                }else if (status == "lock" && siteSchemes.length == 0){
+                  chrome.webRequest.onBeforeRequest.addListener(
+                  blockScripts,
+                  {urls: ["<all_urls>"]},
+                  ["blocking"]);
+                }else if(status == "unlock" && siteSchemes.length != 0){
+                  chrome.webRequest.onBeforeRequest.addListener(
+                  blockScripts,
+                  {urls: ["<all_urls>"]},
+                  ["blocking"]);
+
+                  chrome.webRequest.onBeforeRequest.addListener(
+                  allowScripts,
+                  {urls: siteSchemes},
+                  null);
+                }else if(status == "unlock" && sitesArrScheme.length == 0){
+                  chrome.webRequest.onBeforeRequest.addListener(
+                  blockScripts,
+                  {urls: ["<all_urls>"]},
+                  ["blocking"]);
+                }
+
+            });
+
+            refreshTabs();
+          }
+        });
+      } else if (request.action === "ActivateProtection") {
+        chrome.storage.sync.get("DoNotPeek", function(data) {
+          if (data.DoNotPeek.generalSettings.protection == false) {
+            data.DoNotPeek.generalSettings.protection = true;
+            chrome.storage.sync.set({
+              "DoNotPeek": data.DoNotPeek
+            });
+            chrome.browserAction.setBadgeText({
+              "text": "On"
+            });
+            interval = data.DoNotPeek.generalSettings.interval;
+            createTimer();
+          } else {
+            //Do nothing
+          }
+        });
+      } else if (request.action === "ShowNotification"){
+        chrome.notifications.create("Notification", request.notification);
+      }
     }
-  }
-);
+  );
 
-// Delete previos timer and Create new timer if needed
-function createTimer() {
-  deleteTimer();
-  if (timerStatus == true) {
-    timer = setInterval(function() {
-      chrome.storage.sync.get("DoNotPeek", function(data) {
-        if (!data.DoNotPeek.browserLocked) {
-          data.DoNotPeek.browserLocked = true;
-          chrome.storage.sync.set({
-            'DoNotPeek': data.DoNotPeek
-          });
-          refreshTabs();
+  /*
+  Function that block getting scripts from server using network
+  Especially needed for youtube application to stop starting playback of video
+  */
+  function blockScripts(details){
+    var url = details.url.toLowerCase();
+    if(url.indexOf(".js") >= 0){
+      if(url.indexOf("background.js") >= 0 || url.indexOf("bootstrap.min.js") >= 0
+        || url.indexOf("contentScript.js") >= 0 || url.indexOf("jquery.min.js") >= 0
+        || url.indexOf("jscolor.js") >= 0 || url.indexOf("popper.min.js") >= 0
+        || url.indexOf("popup.js") >= 0){
+          return {cancel:false};
         }
-      });
-    }, interval * 1000);
-  }
-}
-
-//Delete previous timer
-function deleteTimer() {
-  if (timer != null) {
-    clearInterval(timer);
-    timer = null;
-  }
-}
-
-function refreshTabs() {
-  chrome.tabs.query({}, function(tabs) {
-    for (var i = 0; i < tabs.length; i++) {
-      chrome.tabs.update(tabs[i].id, {
-        url: tabs[i].url
-      });
+        return {cancel:true};
+      }
+      return {cancel: false};
     }
-  });
-}
+
 
 /*
+  Function that allows getting scripts from server
+*/
+  function allowScripts(details){
+    return {cancel:true};
+  }
+
+  // Delete previos timer and Create new timer if needed
+  function createTimer() {
+    deleteTimer();
+    if (timerStatus == true) {
+      timer = setInterval(function() {
+        chrome.storage.sync.get("DoNotPeek", function(data) {
+          if (!data.DoNotPeek.browserLocked) {
+            data.DoNotPeek.browserLocked = true;
+            chrome.storage.sync.set({
+              'DoNotPeek': data.DoNotPeek
+            });
+            refreshTabs();
+          }
+        });
+      }, interval * 1000);
+    }
+  }
+
+  //Delete previous timer
+  function deleteTimer() {
+    if (timer != null) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  function refreshTabs() {
+    chrome.tabs.query({}, function(tabs) {
+      for (var i = 0; i < tabs.length; i++) {
+        chrome.tabs.update(tabs[i].id, {
+          url: tabs[i].url
+        });
+      }
+    });
+  }
+
+  /*
   * Detect when user open extension tab in chrome
   * If protection is ON, close extension tab before load
-*/
-chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
-  chrome.storage.sync.get("DoNotPeek", function(data){
-    if(data.DoNotPeek.generalSettings.protection == true){
-      chrome.tabs.remove(details.tabId);
-    }
-  });
-}, {url: [{urlMatches : 'chrome://*'}]});
+  */
+  chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
+    chrome.storage.sync.get("DoNotPeek", function(data){
+      if(data.DoNotPeek.generalSettings.protection == true){
+        chrome.tabs.remove(details.tabId);
+      }
+    });
+  }, {url: [{urlMatches : 'chrome://*'}]});

@@ -47,11 +47,11 @@ function determineStatusOfPage(){
 
 //$(document).ready(){} function
 //Check if status of tab is set to locked. If true, lock tab
-$(window).on("load", function(){
+$(window).on("load", function(event){
   keysPressed = [];
   if (tabLocked == true) {
+    window.stop();
     lockTab();
-    window.stop(); // Need for stopping ajax (example youtube videos)
   } else {
     $('html').attr('style', 'display:');
   }
@@ -164,20 +164,19 @@ function sendMessageToBackgroundScriptToRefreshSettings() {
 
 
 function lockTab() {
+  //Remove elements
+  $('script').remove();
+  $('body').remove();
+  $("frameset").remove();
+  $("frame").remove();
+  $('meta').remove();
+  $('html').attr('style', '');
+  $("link:not([rel*='icon'])").remove();
+  $('style').remove();
   chrome.storage.local.get("DoNotPeek", function(data) {
+    //Update elements
     rgbForm = hexToRgb(data.DoNotPeek.customizationSettings.formColor);
     formColorValue = rgbForm + ", " + (data.DoNotPeek.customizationSettings.formOpacity / 100);
-    //Remove elements
-    $('html').attr('style', '');
-    $("link:not([rel*='icon'])").remove();
-    $('script').remove();
-    $("frameset").remove();
-    $("frame").remove();
-    $('style').remove();
-    $('meta').remove();
-    $('body').remove();
-
-    //Update elements
     //Change favicon of tab
     src = chrome.extension.getURL("../icons/lock.ico");
     $('link[rel*="icon"]').attr('href', src);
