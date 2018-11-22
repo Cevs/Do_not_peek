@@ -47,7 +47,7 @@ function createDb() {
       sitesManagement: {
         sites: [],
         site_schemes:[],
-        status: "lock"
+        status: "whitelist"
       },
       customizationSettings: {
         backgroundColor: "#ffffff",
@@ -117,17 +117,18 @@ chrome.runtime.onMessage.addListener(
             chrome.storage.local.get("DoNotPeek", function(data){
                 siteSchemes = data.DoNotPeek.sitesManagement.site_schemes;
                 var status = data.DoNotPeek.sitesManagement.status;
-                if(status == "lock" && siteSchemes.length != 0){
+                siteSchemesLength = siteSchemes.length;
+                if(status == "blacklist" && siteSchemesLength != 0){
                     chrome.webRequest.onBeforeRequest.addListener(
                     blockScripts,
                     {urls: siteSchemes},
                     ["blocking"]);
-                }else if (status == "lock" && siteSchemes.length == 0){
+                }else if (status == "blacklist" && siteSchemesLength == 0){
                   chrome.webRequest.onBeforeRequest.addListener(
                   blockScripts,
                   {urls: ["<all_urls>"]},
                   ["blocking"]);
-                }else if(status == "unlock" && siteSchemes.length != 0){
+                }else if(status == "whitelist" && siteSchemesLength != 0){
                   chrome.webRequest.onBeforeRequest.addListener(
                   blockScripts,
                   {urls: ["<all_urls>"]},
@@ -137,7 +138,7 @@ chrome.runtime.onMessage.addListener(
                   allowScripts,
                   {urls: siteSchemes},
                   null);
-                }else if(status == "unlock" && sitesArrScheme.length == 0){
+                }else if(status == "whitelist" && siteSchemesLength == 0){
                   chrome.webRequest.onBeforeRequest.addListener(
                   blockScripts,
                   {urls: ["<all_urls>"]},

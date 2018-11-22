@@ -22,7 +22,7 @@ function determineStatusOfPage(){
         if ($.isEmptyObject(sitesArr)) {
           tabLocked = true;
           $('html').attr('style', 'display:none');
-        } else if (data.DoNotPeek.sitesManagement.status === "lock") {
+        } else if (data.DoNotPeek.sitesManagement.status === "blacklist") {
           $.each(sitesArr, function(index, value) {
             if (url.indexOf(value) != -1) {
               tabLocked = true;
@@ -30,7 +30,7 @@ function determineStatusOfPage(){
               return false; //break
             }
           });
-        } else if (data.DoNotPeek.sitesManagement.status === "unlock") {
+        } else if (data.DoNotPeek.sitesManagement.status === "whitelist") {
           $.each(sitesArr, function(index, value) {
             if (url.indexOf(value) == -1) {
               tabLocked = true;

@@ -190,7 +190,7 @@ $(document).on('click', '#btnSetSiteSettings', function(e) {
         chrome.storage.local.set({
           "DoNotPeek": data.DoNotPeek
         });
-        $("#radio-lock").prop("checked", true);
+        $("#radio-whitelist").prop("checked", true);
       } else {
         var sitesArr = [];
         if (data.DoNotPeek.sitesManagement.sites != "" && typeof data.DoNotPeek.sitesManagement.sites !== 'undefined') {
@@ -200,9 +200,9 @@ $(document).on('click', '#btnSetSiteSettings', function(e) {
           $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
         });
         if (data.DoNotPeek.sitesManagement.status === "lock") {
-          $("#radio-lock").prop("checked", true);
+          $("#radio-blacklist").prop("checked", true);
         } else {
-          $("#radio-unlock").prop("checked", true);
+          $("#radio-whitelist").prop("checked", true);
         }
       }
     });
