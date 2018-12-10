@@ -92,61 +92,33 @@ chrome.runtime.onMessage.addListener(
         chrome.storage.sync.set({
           "DoNotPeek": data.DoNotPeek
         });
-        chrome.webRequest.onBeforeRequest.removeListener(
-          blockScripts,
-          {urls: ["<all_urls>"]},
-          ["blocking"]);
-          chrome.webRequest.onBeforeRequest.removeListener(
-            allowScripts,
-            {urls: ["<all_urls>"]},
-            ["blocking"]);
-          refreshTabs();
-          if (data.DoNotPeek.generalSettings.protection) {
-            createTimer();
-          }
-        });
-      } else if (request.action === "LockTabs") {
-        chrome.storage.sync.get("DoNotPeek", function(data) {
-          if (data.DoNotPeek.generalSettings.protection == true && data.DoNotPeek.browserLocked != true) {
-            data.DoNotPeek.browserLocked = true;
-            chrome.storage.sync.set({
-              "DoNotPeek": data.DoNotPeek
-            });
+        chrome.webRequest.onBeforeRequest.removeListener(manageRequests);
+        refreshTabs();
+        if (data.DoNotPeek.generalSettings.protection) {
+          createTimer();
+        }
+      });
+    } else if (request.action === "LockTabs") {
+      chrome.storage.sync.get("DoNotPeek", function(data) {
+        if (data.DoNotPeek.generalSettings.protection == true && data.DoNotPeek.browserLocked != true) {
+          data.DoNotPeek.browserLocked = true;
+          chrome.storage.sync.set({
+            "DoNotPeek": data.DoNotPeek
+          });
 
-            //Izvodi se samo jednom
-            chrome.storage.local.get("DoNotPeek", function(data){
-                siteSchemes = data.DoNotPeek.sitesManagement.site_schemes;
-                var status = data.DoNotPeek.sitesManagement.status;
-                siteSchemesLength = siteSchemes.length;
-                if(status == "blacklist" && siteSchemesLength != 0){
-                    chrome.webRequest.onBeforeRequest.addListener(
-                    blockScripts,
-                    {urls: siteSchemes},
-                    ["blocking"]);
-                }else if (status == "blacklist" && siteSchemesLength == 0){
-                  chrome.webRequest.onBeforeRequest.addListener(
-                  blockScripts,
-                  {urls: ["<all_urls>"]},
-                  ["blocking"]);
-                }else if(status == "whitelist" && siteSchemesLength != 0){
-                  chrome.webRequest.onBeforeRequest.addListener(
-                  blockScripts,
-                  {urls: ["<all_urls>"]},
-                  ["blocking"]);
+          chrome.webRequest.onBeforeRequest.removeListener(manageRequests);
 
-                  chrome.webRequest.onBeforeRequest.addListener(
-                  allowScripts,
-                  {urls: siteSchemes},
-                  null);
-                }else if(status == "whitelist" && siteSchemesLength == 0){
-                  chrome.webRequest.onBeforeRequest.addListener(
-                  blockScripts,
-                  {urls: ["<all_urls>"]},
-                  ["blocking"]);
-                }
+          chrome.storage.local.get("DoNotPeek", function(data){
+            sites = data.DoNotPeek.sitesManagement.sites;
+            siteSchemes = data.DoNotPeek.sitesManagement.site_schemes;
+            siteStatus = data.DoNotPeek.sitesManagement.status;
+            siteSchemesLength = siteSchemes.length;
+            chrome.webRequest.onBeforeRequest.addListener(
+              manageRequests,
+              {urls: ["<all_urls>"]},
+              ["blocking"]);
 
             });
-
             refreshTabs();
           }
         });
@@ -172,30 +144,55 @@ chrome.runtime.onMessage.addListener(
     }
   );
 
+
   /*
-  Function that block getting scripts from server using network
-  Especially needed for youtube application to stop starting playback of video
+  Function that check determine if request should be blocked or not.
+  Block only those request that are using/contacting server for .js scripts
+  Three states:
+  - Blacklist: block all request for urls contained in sites array
+  - Whitelist: allow all request for urls cointained in sites array
+  - Extension request: allow all request that are crucial for extension app to work
   */
-  function blockScripts(details){
-    var url = details.url.toLowerCase();
-    if(url.indexOf(".js") >= 0){
-      if(url.indexOf("background.js") >= 0 || url.indexOf("bootstrap.min.js") >= 0
-        || url.indexOf("contentScript.js") >= 0 || url.indexOf("jquery.min.js") >= 0
-        || url.indexOf("jscolor.js") >= 0 || url.indexOf("popper.min.js") >= 0
-        || url.indexOf("popup.js") >= 0){
+  function manageRequests(details){
+    var orginalUrl = details.url.toLowerCase();
+    var url = getRootOfUrl(orginalUrl);
+    if(siteStatus == "whitelist"){
+
+      if(orginalUrl.indexOf(".js") >= 0){
+        if(orginalUrl.indexOf("background.js") >= 0 || orginalUrl.indexOf("bootstrap.min.js") >= 0
+        || orginalUrl.indexOf("contentScript.js") >= 0 || orginalUrl.indexOf("jquery.min.js") >= 0
+        || orginalUrl.indexOf("jscolor.js") >= 0 || orginalUrl.indexOf("popper.min.js") >= 0
+        || orginalUrl.indexOf("popup.js") >= 0){
+          //Crucial for extension work so we dont ban it
           return {cancel:false};
+        }else{
+          //Not crucial for extension work so we can ban it
+          //But we need to check if .js scripts are from page that needs to be locked
+          initiator = details.initiator;
+          for(index = 0; index < sites.length; ++ index){
+            s = sites[index];
+            if (initiator.indexOf(s) != -1) {
+              return {cancel:false};
+            }
+          }
+          return {cancel:true};
         }
-        return {cancel:true};
       }
-      return {cancel: false};
+    }else if(siteStatus == "blacklist"){
+      if(sites.indexOf(url) > -1){
+        //The value is in the array
+        if(orginalUrl.indexOf(".js") >= 0){
+          if(orginalUrl.indexOf("background.js") >= 0 || orginalUrl.indexOf("bootstrap.min.js") >= 0
+          || orginalUrl.indexOf("contentScript.js") >= 0 || orginalUrl.indexOf("jquery.min.js") >= 0
+          || orginalUrl.indexOf("jscolor.js") >= 0 || orginalUrl.indexOf("popper.min.js") >= 0
+          || orginalUrl.indexOf("popup.js") >= 0){
+            return {cancel:false};
+          }
+          return {cancel:true};
+        }
+      }
+      return {cancel:false};
     }
-
-
-/*
-  Function that allows getting scripts from server
-*/
-  function allowScripts(details){
-    return {cancel:true};
   }
 
   // Delete previos timer and Create new timer if needed
@@ -233,6 +230,18 @@ chrome.runtime.onMessage.addListener(
       }
     });
   }
+
+  /*
+  Return a root of url
+  */
+  function getRootOfUrl(url){
+    var urlScheme = "";
+    var start = url.indexOf("www.");
+    var end = url.lastIndexOf(".com")+4;
+    var slicedUrl = url.slice(start,end);
+    return slicedUrl;
+  }
+
 
   /*
   * Detect when user open extension tab in chrome

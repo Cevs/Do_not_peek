@@ -19,10 +19,8 @@ function determineStatusOfPage(){
         if (data.DoNotPeek.sitesManagement.sites != "" && typeof data.DoNotPeek.sitesManagement.sites !== 'undefined') {
           sitesArr = data.DoNotPeek.sitesManagement.sites;
         }
-        if ($.isEmptyObject(sitesArr)) {
-          tabLocked = true;
-          $('html').attr('style', 'display:none');
-        } else if (data.DoNotPeek.sitesManagement.status === "blacklist") {
+
+        if (data.DoNotPeek.sitesManagement.status === "blacklist") {
           $.each(sitesArr, function(index, value) {
             if (url.indexOf(value) != -1) {
               tabLocked = true;
@@ -31,9 +29,10 @@ function determineStatusOfPage(){
             }
           });
         } else if (data.DoNotPeek.sitesManagement.status === "whitelist") {
+          tabLocked = true;
           $.each(sitesArr, function(index, value) {
-            if (url.indexOf(value) == -1) {
-              tabLocked = true;
+            if (url.indexOf(value) != -1) {
+              tabLocked = false;
               $('html').attr('style', 'display:none');
               return false; //break
             }

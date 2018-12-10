@@ -199,7 +199,7 @@ $(document).on('click', '#btnSetSiteSettings', function(e) {
         $.each(sitesArr, function(index, v) {
           $("#listOfSites").append("<option value='" + v + "'>" + v + "</option>");
         });
-        if (data.DoNotPeek.sitesManagement.status === "lock") {
+        if (data.DoNotPeek.sitesManagement.status === "blacklist") {
           $("#radio-blacklist").prop("checked", true);
         } else {
           $("#radio-whitelist").prop("checked", true);
@@ -562,11 +562,14 @@ $(document).on('change', "input[name=sitesManagementRadio]", function(e) {
   var radioVal = $("input[name=sitesManagementRadio]:checked").val()
   chrome.storage.local.get("DoNotPeek", function(data) {
     sitesArr = [];
+    sitesArrScheme = [];
     if (data.DoNotPeek.sitesManagement.sites != "" && typeof data.DoNotPeek.sitesManagement.sites !== 'undefined') {
       sitesArr = data.DoNotPeek.sitesManagement.sites;
+      sitesArrScheme = data.DoNotPeek.sitesManagement.site_schemes;
     }
     sitesManagementObj = {
       sites: sitesArr,
+      site_schemes: sitesArrScheme,
       status: radioVal
     };
     data.DoNotPeek.sitesManagement = sitesManagementObj;
