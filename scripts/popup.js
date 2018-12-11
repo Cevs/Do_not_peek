@@ -5,6 +5,7 @@ var keyboardTrackingKeyBinding;
 var timerKeyBinding;
 
 $(function() {
+  sendMessageToBackgoundScript("Initialize");
   chrome.storage.sync.get('DoNotPeek', function(data) {
     if (data.DoNotPeek.user == null) {
       $('.container').load('../html/popup_register.html');
@@ -652,7 +653,7 @@ $(document).on('click', "#btnQuickLock", function(){
     chrome.storage.sync.set({
       "DoNotPeek":data.DoNotPeek
     });
-    sendMessageToBackgroundScriptToLockTabs();
+    sendMessageToBackgoundScript("LockTabs");
   });
   chrome.browserAction.setBadgeText({
     "text": "On"
@@ -713,9 +714,9 @@ function loadGeneralOptions(event) {
   });
 }
 
-// Send notificaition to background script to lock browser
-function sendMessageToBackgroundScriptToLockTabs() {
+// Send notificaition to background script
+function sendMessageToBackgoundScript(msg){
   chrome.runtime.sendMessage({
-    action: "LockTabs"
-  }, function(response) {});
+    action:msg
+  },function(response){});
 }

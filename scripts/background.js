@@ -8,19 +8,39 @@ var tabsRefreshed = false;
 
 onStartUp();
 
+//Fires on chrome startup
 function onStartUp() {
+  //Check if sync storage exists. If not create LocalDb storage
+  chrome.storage.sync.get("DoNotPeek", function(data){
+    if(typeof data.DoNotPeek === 'undefined'){
+      createLocalDb();
+    }
+  });
+  createSyncDb();
   refreshTabs();
-  createDb();
-  chrome.browserAction.setBadgeText({
-    "text": "Off"
+}
+
+/*
+First initialization after load up
+*/
+function initialization(){
+  chrome.storage.sync.get("DoNotPeek", function(data) {
+    if (data.DoNotPeek.generalSettings.protection === true) {
+      chrome.browserAction.setBadgeText({
+        "text": "On"
+      });
+    }else{
+      chrome.browserAction.setBadgeText({
+        "text": "Off"
+      });
+    }
   });
 }
 
 /*
-* Create database on first extension loadSettingsPanel
-* Store default settings
+Create key object for extension in sync chrome storage, and fill it with default data
 */
-function createDb() {
+function createSyncDb() {
   chrome.storage.sync.set({
     "DoNotPeek": {
       user: null,
@@ -41,7 +61,13 @@ function createDb() {
       browserLocked: false
     }
   });
+}
 
+/*
+Create key object for extension in local chrome storage, and fill it with default data
+*/
+
+function createLocalDb(){
   chrome.storage.local.set({
     "DoNotPeek": {
       sitesManagement: {
@@ -140,6 +166,8 @@ chrome.runtime.onMessage.addListener(
         });
       } else if (request.action === "ShowNotification"){
         chrome.notifications.create("Notification", request.notification);
+      }else if(request.action === "Initialization"){
+        initialization();
       }
     }
   );
