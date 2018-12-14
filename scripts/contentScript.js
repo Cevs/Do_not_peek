@@ -4,7 +4,7 @@ var keyBindingProtection;
 var keyBindingMouseTracking;
 var keyBindingKeyboardTracking;
 var keyBindingTimer;
-var tabLocked;
+var tabLocked; //Used for black/white listing
 
 determineStatusOfPage();
 //Function for determining if page needs to be locked. Determination is done by analyzing user settings stored in db
@@ -48,12 +48,14 @@ function determineStatusOfPage(){
 //Check if status of tab is set to locked. If true, lock tab
 $(window).on("load", function(event){
   keysPressed = [];
-  if (tabLocked == true) {
-    window.stop();
-    lockTab();
-  } else {
-    $('html').attr('style', 'display:');
-  }
+  chrome.storage.sync.get("DoNotPeek", function(data) {
+    if (data.DoNotPeek.browserLocked && tabLocked) {
+      window.stop();
+      lockTab();
+    }else{
+      $('html').attr('style', 'display:');
+    }
+  });
 });
 
 //Register even on keyup. Add key to array
@@ -76,11 +78,11 @@ $(document).on("keydown", function(event) {
 
     //Compare two arrays
     if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingLock)) && !($.isEmptyObject(keyBindingLock))) {
-      sendMessageToBackgroundScriptToLockTabs();
+      sendMessageToBackgoundScript("LockTabs");
       sendNotificationMessage("Manually locking tabs", "");
     } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingProtection)) && !($.isEmptyObject(keyBindingProtection))) {
       //Change status of protection
-      sendMessageToBackgroundScriptToActivateProtection();
+      sendMessageToBackgoundScript("ActivateProtection");
       sendNotificationMessage("Protection ON", "");
     } else if ((JSON.stringify(keysPressed) == JSON.stringify(keyBindingMouseTracking)) && !($.isEmptyObject(keyBindingMouseTracking))) {
       chrome.storage.sync.get("DoNotPeek", function(data) {
@@ -117,7 +119,7 @@ $(document).on("keydown", function(event) {
         chrome.storage.sync.set({
           "DoNotPeek": data.DoNotPeek
         });
-        sendMessageToBackgroundScriptToRefreshSettings();
+        sendMessageToBackgoundScript("RefreshSettings");
       });
     }
   });
@@ -131,36 +133,6 @@ $(document).on("keyup", function(event) {
   }
   keysPressed.splice($.inArray(removeKey, keysPressed), 1);
 });
-
-function sendMessageToBackgroundScriptToActivateProtection() {
-  chrome.extension.sendMessage({
-    action: "ActivateProtection"
-  }, function(response) {});
-}
-
-// Send notificaition to background script to lock browser
-function sendMessageToBackgroundScriptToLockTabs() {
-  chrome.extension.sendMessage({
-    action: "LockTabs"
-  }, function(response) {});
-}
-
-//Send notification to background script to unlock browser
-function sendMessageToBackgroundScriptToUnlockTabs() {
-  chrome.extension.sendMessage({
-    action: "UnlockTabs"
-  }, function(response) {});
-}
-
-
-//Send notification to background script to refresh timer
-function sendMessageToBackgroundScriptToRefreshSettings() {
-  chrome.extension.sendMessage({
-    action: "RefreshSettings"
-  }, function(response) {});
-}
-
-
 
 function lockTab() {
   //Remove elements
@@ -209,7 +181,7 @@ $("#btnSubmitPassword").click(function(e) {
   password = $("#passwordValue").val();
   chrome.storage.sync.get('DoNotPeek', function(data) {
     if (data.DoNotPeek.user.password == password) {
-      sendMessageToBackgroundScriptToUnlockTabs();
+      sendMessageToBackgoundScript("UnlockTabs");
     } else {
       //Stay locked
       $status = "<strong>Unauthorized</strong>";
@@ -224,7 +196,7 @@ $("#btnSubmitPassword").click(function(e) {
 $("html").mousemove(function(event) {
   chrome.storage.sync.get("DoNotPeek", function(data) {
     if (data.DoNotPeek.generalSettings.mouseTracking && data.DoNotPeek.generalSettings.protection) {
-      sendMessageToBackgroundScriptToRefreshSettings();
+      sendMessageToBackgoundScript("RefreshSettings");
     }
   });
 });
@@ -233,7 +205,7 @@ $("html").mousemove(function(event) {
 $("html").keypress(function(event) {
   chrome.storage.sync.get("DoNotPeek", function(data) {
     if (data.DoNotPeek.generalSettings.keyboardTracking && data.DoNotPeek.generalSettings.protection) {
-      sendMessageToBackgroundScriptToRefreshSettings();
+      sendMessageToBackgoundScript("RefreshSettings");
     }
   });
 });
@@ -265,4 +237,11 @@ function sendNotificationMessage(customTitle, customMessage){
     action: "ShowNotification",
     notification:notifOptions
   }, function(response) {});
+}
+
+// Send notificaition to background script
+function sendMessageToBackgoundScript(msg){
+  chrome.runtime.sendMessage({
+    action:msg
+  },function(response){});
 }

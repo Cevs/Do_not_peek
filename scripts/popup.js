@@ -3,9 +3,7 @@ var protectionKeyBinding;
 var mouseTrackingKeyBinding;
 var keyboardTrackingKeyBinding;
 var timerKeyBinding;
-
 $(function() {
-  sendMessageToBackgoundScript("Initialize");
   chrome.storage.sync.get('DoNotPeek', function(data) {
     if (data.DoNotPeek.user == null) {
       $('.container').load('../html/popup_register.html');
@@ -469,7 +467,7 @@ $(document).on('click', "#btnRemoveUploadedImage", function() {
 });
 
 /*
-  Reformat a user's entry
+Reformat a user's entry
 */
 function reformateURL(url){
   var urlScheme = "";
@@ -480,7 +478,7 @@ function reformateURL(url){
 }
 
 /*
-  Create URL scheme from reformated URL
+Create URL scheme from reformated URL
 */
 function createURLScheme(slicedUrl){
   urlScheme = "*://"+slicedUrl+"/*";
@@ -556,9 +554,9 @@ $(document).on('click', "#btnRemoveSite", function(e) {
 });
 
 /*
- * A listener who handles the event of changing the selected option (radio button)
- * After select has changed, save change in local store
- */
+* A listener who handles the event of changing the selected option (radio button)
+* After select has changed, save change in local store
+*/
 $(document).on('change', "input[name=sitesManagementRadio]", function(e) {
   var radioVal = $("input[name=sitesManagementRadio]:checked").val()
   chrome.storage.local.get("DoNotPeek", function(data) {
@@ -645,7 +643,7 @@ $(document).on('change', "#backgroundColorPicker", function() {
 });
 
 /*
-  Performe quick lock of browser
+Performe quick lock of browser
 */
 $(document).on('click', "#btnQuickLock", function(){
   chrome.storage.sync.get("DoNotPeek", function(data){

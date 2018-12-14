@@ -6,19 +6,19 @@ var timer;
 var timerStatus;
 var tabsRefreshed = false;
 
-onStartUp();
+/*
+Fire just once after installation of extension
+Create local and sync database
+*/
+chrome.runtime.onInstalled.addListener(function createDb(){
+  createLocalDb();
+  createSyncDb();
+});
 
 //Fires on chrome startup
-function onStartUp() {
-  //Check if sync storage exists. If not create LocalDb storage
-  chrome.storage.sync.get("DoNotPeek", function(data){
-    if(typeof data.DoNotPeek === 'undefined'){
-      createLocalDb();
-    }
-  });
-  createSyncDb();
-  refreshTabs();
-}
+chrome.runtime.onStartup.addListener(function startUp(){
+  initialization();
+});
 
 /*
 First initialization after load up
@@ -26,71 +26,27 @@ First initialization after load up
 function initialization(){
   chrome.storage.sync.get("DoNotPeek", function(data) {
     if (data.DoNotPeek.generalSettings.protection === true) {
-      chrome.browserAction.setBadgeText({
-        "text": "On"
-      });
+      setProtectionBadgeText("On");
     }else{
-      chrome.browserAction.setBadgeText({
-        "text": "Off"
-      });
+      setProtectionBadgeText("Off");
+    }
+    if(data.DoNotPeek.generalSettings.timer === true && data.DoNotPeek.browserLocked === false){
+      interval = data.DoNotPeek.generalSettings.interval;
+      timerStatus = true;
+      createTimer();
     }
   });
 }
 
 /*
-Create key object for extension in sync chrome storage, and fill it with default data
+Set badge text of extension
 */
-function createSyncDb() {
-  chrome.storage.sync.set({
-    "DoNotPeek": {
-      user: null,
-      generalSettings: {
-        protection: false,
-        mouseTracking: false,
-        keyboardTracking: false,
-        timer: false,
-        interval: 30
-      },
-      keyBindings: {
-        protection: "",
-        lock: "",
-        mouseTracking: "",
-        keyboardTracking: "",
-        timer: ""
-      },
-      browserLocked: false
-    }
+function setProtectionBadgeText(text){
+  chrome.browserAction.setBadgeText({
+    "text":text
   });
 }
 
-/*
-Create key object for extension in local chrome storage, and fill it with default data
-*/
-
-function createLocalDb(){
-  chrome.storage.local.set({
-    "DoNotPeek": {
-      sitesManagement: {
-        sites: [],
-        site_schemes:[],
-        status: "whitelist"
-      },
-      customizationSettings: {
-        backgroundColor: "#ffffff",
-        formColor: "#f2f2f2",
-        buttonColor: "#343a40",
-        buttonFontColor: "#ffffff",
-        formTitleFontColor: "#000000",
-        formOpacity: 80,
-        backgroundOpacity: 100,
-        backgroundImage: {
-          image: "",
-          size: "cover"
-        }
-      }
-    }
-  });
-}
 
 //Event handler for updating user generalSettings
 //Update settings made by user
@@ -113,14 +69,17 @@ chrome.runtime.onMessage.addListener(
         }
       });
     } else if (request.action === "UnlockTabs") {
+      chrome.webRequest.onBeforeRequest.removeListener(manageRequests);
       chrome.storage.sync.get("DoNotPeek", function(data) {
         data.DoNotPeek.browserLocked = false;
         chrome.storage.sync.set({
           "DoNotPeek": data.DoNotPeek
+        }, function(result){
+          refreshTabs();
         });
-        chrome.webRequest.onBeforeRequest.removeListener(manageRequests);
-        refreshTabs();
-        if (data.DoNotPeek.generalSettings.protection) {
+        if (data.DoNotPeek.generalSettings.protection && data.DoNotPeek.generalSettings.timer) {
+          interval = data.DoNotPeek.generalSettings.interval;
+          timerStatus = true;
           createTimer();
         }
       });
@@ -130,22 +89,22 @@ chrome.runtime.onMessage.addListener(
           data.DoNotPeek.browserLocked = true;
           chrome.storage.sync.set({
             "DoNotPeek": data.DoNotPeek
-          });
+          }, function(result){
+            chrome.webRequest.onBeforeRequest.removeListener(manageRequests);
 
-          chrome.webRequest.onBeforeRequest.removeListener(manageRequests);
+            chrome.storage.local.get("DoNotPeek", function(data){
+              sites = data.DoNotPeek.sitesManagement.sites;
+              siteSchemes = data.DoNotPeek.sitesManagement.site_schemes;
+              siteStatus = data.DoNotPeek.sitesManagement.status;
+              siteSchemesLength = siteSchemes.length;
+              chrome.webRequest.onBeforeRequest.addListener(
+                manageRequests,
+                {urls: ["<all_urls>"]},
+                ["blocking"]);
 
-          chrome.storage.local.get("DoNotPeek", function(data){
-            sites = data.DoNotPeek.sitesManagement.sites;
-            siteSchemes = data.DoNotPeek.sitesManagement.site_schemes;
-            siteStatus = data.DoNotPeek.sitesManagement.status;
-            siteSchemesLength = siteSchemes.length;
-            chrome.webRequest.onBeforeRequest.addListener(
-              manageRequests,
-              {urls: ["<all_urls>"]},
-              ["blocking"]);
-
+              });
+              refreshTabs();
             });
-            refreshTabs();
           }
         });
       } else if (request.action === "ActivateProtection") {
@@ -154,20 +113,21 @@ chrome.runtime.onMessage.addListener(
             data.DoNotPeek.generalSettings.protection = true;
             chrome.storage.sync.set({
               "DoNotPeek": data.DoNotPeek
+            }, function(result){
+              chrome.browserAction.setBadgeText({
+                "text": "On"
+              });
+              interval = data.DoNotPeek.generalSettings.interval;
+              createTimer();
             });
-            chrome.browserAction.setBadgeText({
-              "text": "On"
-            });
-            interval = data.DoNotPeek.generalSettings.interval;
-            createTimer();
           } else {
             //Do nothing
           }
         });
       } else if (request.action === "ShowNotification"){
         chrome.notifications.create("Notification", request.notification);
-      }else if(request.action === "Initialization"){
-        initialization();
+      }else{
+
       }
     }
   );
@@ -282,3 +242,59 @@ chrome.runtime.onMessage.addListener(
       }
     });
   }, {url: [{urlMatches : 'chrome://*'}]});
+
+
+  /*
+  Create key object for extension in sync chrome storage, and fill it with default data
+  */
+  function createSyncDb() {
+    chrome.storage.sync.set({
+      "DoNotPeek": {
+        user: null,
+        generalSettings: {
+          protection: false,
+          mouseTracking: false,
+          keyboardTracking: false,
+          timer: false,
+          interval: 30
+        },
+        keyBindings: {
+          protection: "",
+          lock: "",
+          mouseTracking: "",
+          keyboardTracking: "",
+          timer: ""
+        },
+        browserLocked: false
+      }
+    });
+  }
+
+  /*
+  Create key object for extension in local chrome storage, and fill it with default data
+  */
+
+  function createLocalDb(){
+    chrome.storage.local.set({
+      "DoNotPeek": {
+        sitesManagement: {
+          sites: [],
+          site_schemes:[],
+          status: "whitelist"
+        },
+        customizationSettings: {
+          backgroundColor: "#ffffff",
+          formColor: "#f2f2f2",
+          buttonColor: "#343a40",
+          buttonFontColor: "#ffffff",
+          formTitleFontColor: "#000000",
+          formOpacity: 80,
+          backgroundOpacity: 100,
+          backgroundImage: {
+            image: "",
+            size: "cover"
+          }
+        }
+      }
+    });
+  }
